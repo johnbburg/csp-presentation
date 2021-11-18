@@ -7,7 +7,7 @@ and some of the packages and modules may be out of date. Even when this was post
 to this repository, the f1 cli dependency was deprecated.
 
 
-# Requirements:
+# Requirements
 
 Docker
 
