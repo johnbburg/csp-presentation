@@ -9,7 +9,9 @@ to this repository, the f1 cli dependency was deprecated.
 # Set up the project 
 
 Requirements:
+
 Docker
+
 The f1 cli https://github.com/forumone/forumone-cli
 
 Build docker
