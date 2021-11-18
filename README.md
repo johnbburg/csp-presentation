@@ -6,13 +6,14 @@ you can configure it in a Drupal website. Warning, this is not actively maintain
 and some of the packages and modules may be out of date. Even when this was posted 
 to this repository, the f1 cli dependency was deprecated.
 
-# Set up the project 
 
-Requirements:
+# Requirements:
 
 Docker
 
 The f1 cli https://github.com/forumone/forumone-cli
+
+# Set up the project 
 
 Build docker
 `f1 build ; f1 up`
