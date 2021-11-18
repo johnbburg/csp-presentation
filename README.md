@@ -1,5 +1,6 @@
-# csp-presentation
-Presentation on Content Security Policy, with example Drupal site implementation. 
+# Content Security Policy Presentation
+Presentation on Content Security Policy (https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP), 
+with example Drupal site implementation. 
 
 This repository is a demonstration of how content security policy works, and how 
 you can configure it in a Drupal website. Warning, this is not actively maintained, 
