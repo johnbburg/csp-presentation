@@ -1,0 +1,17 @@
+.flex-container-column {
+ display: flex;
+ flex-wrap: wrap;
+}
+
+.flex-container-column a {
+ padding-left:20px;
+ top:20px;
+}
+
+.flex-element {
+
+}
+
+.inline-block{
+ display: inline-block;
+}

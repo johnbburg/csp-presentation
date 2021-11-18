@@ -1,0 +1,14 @@
+uuid: f847e057-d0c4-4e88-9f8c-08115d5ebf8a
+name: 'Content Security Policy'
+mail: jbrandenburg@forumone.com
+slogan: ''
+page:
+  403: ''
+  404: ''
+  front: /node/1
+admin_compact_mode: false
+weight_select_max: 100
+langcode: en
+default_langcode: en
+_core:
+  default_config_hash: yXadRE77Va-G6dxhd2kPYapAvbnSvTF6hO4oXiOEynI

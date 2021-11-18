@@ -1,0 +1,26 @@
+.floating {
+  color:gray;
+  font-weight: bold;
+  font-size: large;
+  text-shadow: 1px 1px #000;
+  padding: 10px;
+}
+
+
+.div-image-external {
+  width:416px;
+  height:312px;
+  background-image:url('../images/moustache-cakes.jpeg');
+}
+
+.jsbox {
+  border:1px solid red;
+}
+
+.fonttest {
+  font-family: 'Audiowide', cursive;
+}
+
+.code-block {
+  display: block;
+}

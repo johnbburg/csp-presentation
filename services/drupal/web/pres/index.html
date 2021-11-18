@@ -1,0 +1,331 @@
+<!doctype html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+		<title>CSP</title>
+
+		<link rel="stylesheet" href="dist/reset.css">
+		<link rel="stylesheet" href="dist/reveal.css">
+		<link rel="stylesheet" href="dist/theme/blood.css" id="theme">
+		<link rel="stylesheet" href="custom.css">
+
+		<!-- Theme used for syntax highlighted code -->
+		<link rel="stylesheet" href="plugin/highlight/monokai.css" id="highlight-theme">
+	</head>
+	<body>
+		<div class="reveal">
+			<div class="slides">
+				<section>
+					<section>
+						<h2>Security,</h2>
+						<h3>Content Security Policy,</h3>
+						<h3>Background Images,</h3>
+						<h3>And Mobile performance,</h3>
+            <p>Use arrow keys to move slides</p>
+					</section>
+					<section>
+						<h3>John Brandenburg</h3>
+						<h4>Technology Manager</h4>
+						<img src="images/john.png"/>
+					</section>
+				</section>
+				<section>
+					<section><h2>Web Page Test</h2>
+						<img src="images/webpagetest.png">
+					</section>
+					<section>
+						<h4>Security scores of recent sites</h4>
+						<div class="flex-container-column">
+							<div clss="flex-element"><img src="images/F.png"></div>
+						</div>
+
+					</section>
+					<section>
+						<h3>Don't feel too bad</h3>
+						<a target="_blank" href="https://www.webpagetest.org/result/200917_8Q_a6aff13648d0aa47be3b5d4105224b72/">
+						<img src="images/google-webpagetest.png"/>
+						</a>
+            <a target="_blank" href="https://www.webpagetest.org/result/200924_PK_f12e38e669c5f4308c866019ab05d7e6/">mail.google.com Gets an A+ though.</a>
+            <p>Judge your security posture by the needs of your site.</p>
+            <p>PII?</p>
+            <p>Finance?</p>
+
+					</section>
+          <section>
+            <h3>Low grades are due to:</h3>
+            <ul>
+              <li>Strict Transport Security - HSTS</li>
+              <li>Content Security Policy - CSP</li>
+            </ul>
+            <p>It also may call out a low an XSS issue, and X Frame options, but those two are the "high severity" items</p>
+          </section>
+
+        </section>
+				<section>
+					<section>
+						<h2>What is HSTS?</h2>
+						<p>A header that is sent in the page request that tellsthe browser to connect to that domain via HTTPS</p>
+						<pre><code class="http">strict-transport-security: max-age=31536000; includeSubDomains</code></pre>
+					</section>
+					<section>
+						<h1>http headers</h1>
+					</section>
+					<section>
+						<h3>How can I set up HSTS?</h3>
+						<p>In Drupal, the <a target="_blank" href="https://www.drupal.org/project/seckit">Security Kit</a> module can be used. You can also just set the header directly in PHP.</p>
+						<p>In Wordpress. Also set the header directly. There are also Plugins available.</p>
+					</section>
+					<section><h2>Warning</h2>
+					<p>If a site was setup to use HSTS, and you ever let the certificate expire, no one will be able to access the site.</p></section>
+
+				</section>
+				<section>
+					<section>
+						<h3>What is CSP?</h3>
+						<p>A protocol that allows you to define the acceptable sources a website can use to access resources</p>
+					</section>
+					<section>
+            <h3>Yeah, but what does that mean?</h3>
+          </section>
+          <section>
+            <h3>An HTTP header that...</h3>
+            <p>Defines what sources can be used on a web page.</p>
+            <pre><code>content-security-policy: default-src 'self';</code></pre>
+            <p>From here, you can add domains, nonces, hashes, protocols, and other options.</p>
+          </section>
+				</section>
+				<section>
+					<section><h2>Why do I need a Content Security Policy?</h2></section>
+
+					<section><h3>British airways hack in 2018</h3>
+						<ul>
+							<li>380,000 credit card details.</li>
+							<li>Facing £183m fine (GDPR).</li>
+						</ul>
+            <p>These days, hacking is automated, someone may just want to install a bitcoin miner.</p>
+            <p>No site is too small to hack.</p>
+					</section>
+				</section>
+
+
+
+        <section>
+          <section>
+            <h2>CSP Categories:</h2>
+            <div style="display: inline-block; width: 48%; valign:top;">
+              <ul>
+                <li>default-src</li>
+                <li>child-src</li>
+                <li>connect-src</li>
+                <li>font-src</li>
+                <li>frame-src</li>
+                <li>img-src</li>
+                <li>manifest-src</li>
+                <li>media-src</li>
+                <li>object-src</li>
+                <li>prefetch-src</li>
+              </ul>
+
+            </div>
+            <div style="display: inline-block; width: 48%">
+              <ul>
+                <li>script-src</li>
+                <li>script-src-attr</li>
+                <li>script-src-elem</li>
+                <li>style-src</li>
+                <li>style-src-attr</li>
+                <li>style-src-elem</li>
+                <li>worker-src</li>
+                <li>base-uri</li>
+                <li>form-action</li>
+                <li>frame-ancestors</li>
+                <li>navigate-to</li>
+              </ul>
+
+            </div>
+
+
+          </section>
+          <section>
+            <h2>Rules Apply from Specific to General</h2>
+            <p>Browsers will apply rules that go from the most specific to most general. So if rules are missing for
+              the more specific rules, they will apply the more general ones.</p>
+          </section>
+          <section>
+            <li>script-src-attr</li>
+            <li>script-src</li>
+            <li>default-src</li>
+            <p>Also note not all browsers implement all categories. E.g. Firefox does not use <code>script-src-attr</code>.</p>
+          </section>
+          <section>
+            <p>So you should always enable the <code>default-src</code></p>
+            <p>Which is not enabled by default in th csp Drupal module.</p>
+          </section>
+          <section>
+            <h3>Report-only mode</h3>
+            <p>Allows you to see what would be blocked, without blocking it.</p>
+          </section>
+        </section>
+
+        <section>
+          <section><h2>Key features in CSP</h2></section>
+          <section>
+            <h3><code>unsafe-inline</code></h3>
+            <pre><code class="http">Content-Security-Policy: default-src 'unsafe-inline'</code></pre>
+            <p>Still better than not using a CSP at all.</p>
+          </section>
+
+          <section>
+            <h2>Hashes</h2>
+            <pre><code class="http">Content-Security-Policy: script-src 'sha256-B2yPHKaXnvFWtRChIbabYmUBFZdVfKKXHbWtWidDVF8='
+            </code></pre>
+            <p>Script or style allow-listed by referencing a base64/sha256/sha384/sha512 hashed version of the code.</p>
+            <p>Using hashes can be problematic, as they will invalidate any <code>"unsafe-inline"</code> options.</p>
+            <a target="_blank" href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy/script-src">https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy/script-src</a>
+          </section>
+
+          <section>
+            <h2>Don't use hashes</h2>
+            <p><a target="_blank" href="https://stackoverflow.com/questions/52724956/why-doesnt-chrome-respect-my-content-security-policy-hashes" target="_blank">
+              Chrome won't use sources defined as attributes.
+            </a></p>
+          </section>
+
+          <section>
+            <h2>Nonces</h2>
+            <pre><code >&lt;style nonce="ABC123"&gt;</code></pre>
+            <p>Script or style allow-listed by referencing an arbitrary, server-defined string. These should be generated new for each request.</p>
+              <a target="_blank" href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy/script-src">https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy/script-src</a>
+          </section>
+          <section><h2>Don't use static nonces.</h2>
+          <p>They defeat the purpose of a CSP.</p></section>
+
+					<section>
+            <img src="images/csp-long.png" alt="content-security-policy: default-src 'self'; font-src 'self' d2rluhlsrx2f7f.cloudfront.net dujgk33i56scb.cloudfront.net fonts.gstatic.com; frame-src 'self' www.google.com; img-src 'self' d2rluhlsrx2f7f.cloudfront.net dujgk33i56scb.cloudfront.net scontent-iad3-1.cdninstagram.com static.addtoany.com www.google-analytics.com scontent-lga3-2.cdninstagram.com data:; script-src 'self' 'unsafe-inline' www.googletagmanager.com www.google.com www.gstatic.com www.google-analytics.com js-agent.newrelic.com bam.nr-data.net d2rluhlsrx2f7f.cloudfront.net dujgk33i56scb.cloudfront.net https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://static.addtoany.com; style-src 'self' 'unsafe-inline' static.addtoany.com d2rluhlsrx2f7f.cloudfront.net dujgk33i56scb.cloudfront.net fonts.googleapis.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; frame-ancestors 'self'; report-uri http://rti-sra.forumone.dev/report-uri/enforce">
+            <p>I forgot to set "<code>default-src</code>"</p>
+					</section>
+          <section>
+            <a href="/demo/index.php" target="_blank"><h3>Demonstration</h3>
+            <ul>
+              <li>No CSP</li>
+              <li>Report Only CSP</li>
+              <li>Enforced CSP</li>
+              <li>Hash</li>
+              <li>Nonce</li>
+              <li>unsafe-inline</li>
+            </ul>
+          </a>
+          </section>
+
+
+				</section>
+
+
+
+        <section>
+          <h3>What are the current limitations of CSP?</h3>
+          <p>Safari 13 does not support some parts of the CSP3 spec (Just hashes?). Most other browsers support CSP3.
+            Safari 14 should, (released last week).</p>
+          <p>Inconsistent browser support of categories.</p>
+          <p>A weak CSP can still let attacks through.</p>
+          <p><a target="_blank" href="https://security.stackexchange.com/questions/131149/what-are-the-limitations-of-content-security-policy">Even a strong one can be circumvented</a>
+        </section>
+
+        <section>
+          <section>
+            <h3>How do you set a CSP?</h3>
+            <p>You could just set it manually in PHP,</p><p> but CSP often needs to be dynamic.</p>
+          </section>
+          <section>
+            <h3>Wordpress</h3>
+            <p>Various plugins available. Not sure what is the best yet.</p>
+          </section>
+          <section>
+            <h3>Drupal</h3>
+            <p>
+              <a target="_blank" target="_blank" href="https://www.drupal.org/project/csp">CSP module</a>.
+            </p>
+            <p>
+              Do not use the "Security Kit."
+            </p>
+            <p>(<a href="https://www.drupal.org/project/drupal/issues/2789139">Bug in Drupal breaks CKEditor</a>)</p>
+            <p>CSP module is smart enough to automatically add <code>unsafe-inline</code> to any pages with CKEditor on them.</p>
+            <p>Does not work well with ajax loaded editors (e.g. when editing Paragraphs).</p>
+          </section>
+        </section>
+
+				<section>
+					<section>We have a problem
+						<pre>
+					    <code>&#x3C;div style=&#x22;background-image: url(&#x27;...&#x27;)&#x22;&#x3E;</code>
+            </pre>
+            <p>CSP will block this without the "unsafe-inline" option.</p>
+						<p>The rest of this presentation is how to mitigate this.</p>
+					</section>
+
+					<section>
+						<p>We need to dynamically adhere to our CSP</p>
+					</section>
+
+					<section>
+						<h3>Modules</h3>
+						<ul>
+							<li>Content Security Policy (drupal/csp)</li>
+							<li>Background Images Formatter (drupal/bg_image_formatter)
+								<ul>
+									<li>(not background_image_formatter)</li>
+									<li>The currently unreleased 3.x branch, which is available on the drupal.org repository</li>
+								</ul>
+							</li>
+							<li>Attach Inline
+							<ul><li>Bug in version 1.3. Next release should be fixed</li>
+              <li>Add this to settings.php to use nonces: </li></ul></li>
+						</ul>
+            <pre><code>$config['attachinline.settings']['csp-allow-method'] = 'nonce';</code></pre>
+					</section>
+
+
+					<section>
+						<p>While we are at it, why don't we improve mobile performance?</p>
+						<p>						Responsive Images (Drupal Core module)</p>
+							<p>Responsive Background Images Formatter (submodule to Background Images formatter)
+							.</p>
+					</section>
+
+					<section>A Pull request is available
+						<a target="_blank" href="https://github.com/forumone/gesso/pull/387">https://github.com/forumone/gesso/pull/387</a>
+					</section>
+
+				</section>
+				<section>
+					<section>
+						<h3>What next?</h3>
+						<p>Get 3.0 release done for Background Images Formatter. - (Better Media Handling)</p>
+						<p>Merge KJ's PR.</p>
+            <p>Improve Attach Inline Module.</p>
+					</section>
+				</section>
+				<section><h1>Questions <div>and</div> Discussion</h1>
+				<p>How many "ums"?</p></section>
+			</div>
+		</div>
+
+		<script src="dist/reveal.js"></script>
+		<script src="plugin/notes/notes.js"></script>
+		<script src="plugin/markdown/markdown.js"></script>
+		<script src="plugin/highlight/highlight.js"></script>
+		<script>
+			// More info about initialization & config:
+			// - https://revealjs.com/initialization/
+			// - https://revealjs.com/config/
+			Reveal.initialize({
+				hash: true,
+
+				// Learn about plugins: https://revealjs.com/plugins/
+				plugins: [ RevealMarkdown, RevealHighlight, RevealNotes ]
+			});
+		</script>
+	</body>
+</html>

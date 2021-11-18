@@ -1,0 +1,47 @@
+_core:
+  default_config_hash: o4-eDkmTmVdUICtL1VxWD3S9Ze8kNq_lHj6DskF8U8o
+report-only:
+  enable: false
+  directives:
+    default-src:
+      sources:
+        - fonts.googleapis.com
+      base: self
+    frame-ancestors:
+      base: self
+  reporting:
+    plugin: none
+enforce:
+  enable: true
+  directives:
+    default-src:
+      base: self
+    font-src:
+      sources:
+        - fonts.googleapis.com
+        - fonts.gstatic.com
+      base: self
+    frame-src:
+      sources:
+        - www.youtube.com
+        - w.soundcloud.com
+      base: self
+    img-src:
+      sources:
+        - pbs.twimg.com
+        - static.addtoany.com
+      base: self
+    script-src:
+      sources:
+        - static.addtoany.com
+      base: self
+    style-src:
+      sources:
+        - fonts.googleapis.com
+        - fonts.gstatic.com
+        - static.addtoany.com
+      base: self
+    frame-ancestors:
+      base: self
+  reporting:
+    plugin: none

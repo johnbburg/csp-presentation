@@ -1,0 +1,11 @@
+uuid: 8a8dc7aa-1092-4365-bd5b-b86bed5dc684
+langcode: en
+status: true
+dependencies: {  }
+name: page
+type: page
+description: ''
+help: ''
+new_revision: true
+preview_mode: 1
+display_submitted: false
