@@ -3,9 +3,14 @@ Presentation on Content Security Policy, with example Drupal site implementation
 
 This repository is a demonstration of how content security policy works, and how 
 you can configure it in a Drupal website. Warning, this is not actively maintained, 
-and some of the packages and modules may be out of date. 
+and some of the packages and modules may be out of date. Even when this was posted 
+to this repository, the f1 cli dependency was deprecated.
 
 # Set up the project 
+
+Requirements:
+Docker
+The f1 cli https://github.com/forumone/forumone-cli
 
 Build docker
 `f1 build ; f1 up`
@@ -38,4 +43,7 @@ Import the database file committed to the root of this repository:
 
 `zcat database.sql.gz | f1 drush sqlc`
 
+Once complete, if set up was successful, you should be able to visit http://localhost:8080 
+and see a Drupal website. A revealjs presentation is bundled under /pres.
 
+To log into the site, run f1 drush uli
