@@ -114,16 +114,17 @@
         <a class="a2a_button_twitter"></a>
         <a class="a2a_button_email"></a>
       </div>
-      <script <?php
+      <script async <?php
       if ($nonce) {
         echo $nonce_attribute;
       }
-      ?> async src="https://static.addtoany.com/menu/page.js"></script>
+      ?> src="https://static.addtoany.com/menu/page.js" ></script>
       <!-- AddToAny END -->
       <br />
       <p>Share buttons using AddToAny. These are loaded by javascript, and will
         break unless the javascript domain is allowed. They might degrade if not
-        handled properly</p>
+        handled properly.</p>
+      <p>In the hash example, this just completely breaks. They recommend using a nonce <a href="https://demo.addtoany.com/csp" target="_blank">https://demo.addtoany.com/csp</a> (I can't get this to work with a nonce).</p>
 
     </div>
     <hr />
@@ -133,17 +134,18 @@
     <h2 class="fonttest">Fonts</h2>
 
     <p class="fonttest">This text should be using the "Audiowide" font from google fonts. Fonts downloaded from external
-      sources need to be added to your CSP in the "font-src" group.</p>
+      sources need to be added to your CSP in the "font-src" group. You should probably be serving fonts locally anyway.</p>
 </div>
     <hr />
 
     <div class="row">
       <h2>Inline Javascript </h2>
+      <p>In the next few examples, we insert code via via <code>document.write();</code> </p>
       <span class="jsbox">
-      <script>
-        document.write('This is text inserted by javascript. It should be blocked by any CSP unless it is using a hash, or the "unsafe-inline" option');
-      </script>
-    </span>
+        <script>
+          document.write('This is text inserted by javascript. It should be blocked by any CSP unless it is using a hash, or the "unsafe-inline" option');
+        </script>
+      </span>
       <p>In the red box, you should see the text: </p>
       <blockquote>"This is text inserted by javascript. It should be blocked by any CSP unless it is using a hash, or the "unsafe-inline" option"</blockquote>
     <p>This won't include either a nonce or a hash, so will not display the text if CSP is enforced.</p>

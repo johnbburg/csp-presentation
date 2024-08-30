@@ -1,6 +1,6 @@
 <?php
 
-$csp_option = $_GET['csp'];
+$csp_option = isset($_GET['csp']) ? $_GET['csp'] : '';
 $csp = '';
 $nonce = false;
 $nonce_attribute = '';
@@ -38,9 +38,11 @@ switch ($csp_option) {
       '\'sha256-rzkjI77fzABKN64xUTJ3vqEM6jchqET51GYeZdYh3Rg=\'', // Youtube
       '\'sha256-JMeWrM1/oCUD5M4FnrlNUWNkgHF4Z05ZPARrDlklsWo=\'',
       '\'sha256-9m5ZYdQpD7bOrk7D4hj7D991rkdrUtKisZ2FiiOCzxI=\'', // attribute inline style. Does not work in chrome, but does work in firefox.
-      '\'sha256-47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=\'', // Addtoany.
-      '\'sha256-8iixQzRWbl7rrH94PEm/DGN8CtL64V4PSJVvZb/eDC0=\'', // Addtoany.
-      '\'sha256-4FQ7x7R1c8CIjEG4ebULEszksFz7R2HnDh3MTJk2KhE=\'', // Addtoany.
+
+      '\'sha256-w7vyv9EyxUMstR93JzPSMf5Ik2nmyz60L9hnmT5FOIQ=\'', // AddToAny updated 08/2024
+      '\'sha256-Kd0zQQiHTqHGCnKzauVxIUj/nq4oZmiXUGENiDXgwE8=\'', // AddToAny updated 08/2024
+      '\'sha256-47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=\'', // AddToAny updated 08/2024
+      '\'sha256-X7EzNh+qw8yo804CRJMcy3pSiwJIy7onG3OQwmsT8j8=\'', // AddToAny updated 08/2024
       //'data:'
     ];
     $csp = "content-security-policy: " . implode(' ', $policies) . ";";
