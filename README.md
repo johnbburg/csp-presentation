@@ -1,25 +1,30 @@
 # Content Security Policy Presentation
-Presentation on Content Security Policy (https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP), 
-with example Drupal site implementation. 
+Presentation on Content Security Policy (https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP),
+with example Drupal site implementation.
 
-This repository is a demonstration of how content security policy works, and how 
-you can configure it in a Drupal website. Warning, this is not actively maintained, 
-and some of the packages and modules may be out of date. Even when this was posted 
+This repository is a demonstration of how content security policy works, and how
+you can configure it in a Drupal website. Warning, this is not actively maintained,
+and some of the packages and modules may be out of date. Even when this was posted
 to this repository, the f1 cli dependency was deprecated.
 
 
 # Requirements
 
-Docker
+To set up the local environment, do the following:
 
-The f1 cli https://github.com/forumone/forumone-cli
+1. Install [`docker`](https://docs.docker.com/install/) and [`docker-compose`](https://docs.docker.com/compose/install/), if not already installed. It is also recommended to update to the latest version.
 
-# Set up the project 
+2. Install [`DDEV`](https://ddev.readthedocs.io/en/stable/#installation)
 
-Build docker
-`f1 build ; f1 up`
 
-Composer install in `services/drupal` directory.
+# Set up the project
+
+Start ddev, install packages, and import the provided database.
+
+`ddev start \
+ddev composer install ;\
+zcat database.sql.gz | ddev drush sqlc
+`
 
 Set up database:
 in services/drupal/web/sites/default
@@ -30,24 +35,9 @@ $settings['config_sync_directory'] = '../config/sync';
 
 
 $config['attachinline.settings']['csp-allow-method'] = 'nonce';
-
-$databases['default']['default'] = array (
-  'database' => 'web',
-  'username' => 'web',
-  'password' => 'web',
-  'prefix' => '',
-  'host' => 'mysql',
-  'port' => '3306',
-  'namespace' => 'Drupal\\Core\\Database\\Driver\\mysql',
-  'driver' => 'mysql',
-);
 ```
 
-Import the database file committed to the root of this repository:
-
-`zcat database.sql.gz | f1 drush sqlc`
-
-Once complete, if set up was successful, you should be able to visit http://localhost:8080 
+Once complete, if set up was successful, you should be able to visit https://csp.ddev.site/
 and see a Drupal website. A revealjs presentation is bundled under /pres.
 
 To log into the site, run f1 drush uli

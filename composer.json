@@ -1,5 +1,5 @@
 {
-  "name": "drupal-composer/drupal-project",
+  "name": "johnbburg/csp-presentation",
   "description": "Project template for Drupal 8 projects with composer",
   "type": "project",
   "license": "GPL-2.0-or-later",
@@ -16,23 +16,21 @@
     }
   ],
   "require": {
-    "php": ">=7.0.8",
+    "php": ">=8.3.0",
     "composer/installers": "^1.2",
     "cweagans/composer-patches": "^1.6.5",
     "drupal/admin_toolbar": "^3.5",
     "drupal/attachinline": "^1.5",
     "drupal/bg_image_formatter": "^1.17",
-    "drupal/core-composer-scaffold": "10.0.0",
-    "drupal/core-recommended": "10.0.0",
+    "drupal/core-composer-scaffold": "~11.0",
+    "drupal/core-recommended": "~11.0",
     "drupal/crop": "^2.4",
-    "drupal/csp": "^1.25",
+    "drupal/csp": "~2.0",
     "drupal/focal_point": "^2.1",
-    "drupal/responsive_bg_image_formatter": "^1.17",
     "drupal/seckit": "^2.0",
-    "drush/drush": "^12.5",
+    "drush/drush": "~13",
     "vlucas/phpdotenv": "^4.0",
-    "webflo/drupal-finder": "^1.0.0",
-    "zaporylie/composer-drupal-optimizations": "^1.0"
+    "webflo/drupal-finder": "^1.0.0"
   },
   "conflict": {
     "drupal/drupal": "*"
@@ -50,7 +48,6 @@
       "composer/installers": true,
       "cweagans/composer-patches": true,
       "drupal/core-composer-scaffold": true,
-      "zaporylie/composer-drupal-optimizations": true,
       "drupal/console-extend-plugin": true,
       "dealerdirect/phpcodesniffer-composer-installer": true
     }
@@ -107,5 +104,8 @@
         "type:drupal-drush"
       ]
     }
+  },
+  "require-dev": {
+    "drupal/upgrade_status": "^4.3"
   }
 }
