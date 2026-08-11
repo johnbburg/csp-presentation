@@ -4,9 +4,9 @@ report-only:
   enable: false
   directives:
     default-src:
+      base: self
       sources:
         - fonts.googleapis.com
-      base: self
     frame-ancestors:
       base: self
   reporting:
@@ -17,30 +17,31 @@ enforce:
     default-src:
       base: self
     font-src:
+      base: self
       sources:
         - fonts.googleapis.com
         - fonts.gstatic.com
-      base: self
     frame-src:
+      base: self
       sources:
         - www.youtube.com
         - w.soundcloud.com
-      base: self
     img-src:
+      base: self
       sources:
+        - 'data:'
         - pbs.twimg.com
         - static.addtoany.com
-      base: self
     script-src:
+      base: self
       sources:
         - static.addtoany.com
-      base: self
     style-src:
+      base: self
       sources:
         - fonts.googleapis.com
         - fonts.gstatic.com
         - static.addtoany.com
-      base: self
     frame-ancestors:
       base: self
   reporting:

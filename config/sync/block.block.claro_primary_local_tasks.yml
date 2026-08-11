@@ -1,22 +1,22 @@
-uuid: 43ef6458-c78c-424a-9991-5d58ba77c913
+uuid: fa39cf7b-c82d-440e-9b51-8bf21e027ded
 langcode: en
 status: true
 dependencies:
   theme:
-    - bartik
+    - claro
 _core:
-  default_config_hash: 7cvXIzw8NabmQCWMPqBz0mvIQZzXUZB3OeOTa5eqbCo
-id: bartik_primary_local_tasks
-theme: bartik
-region: breadcrumb
-weight: -3
+  default_config_hash: ACjBZI5shAMiiUpsz-inLYVXDqNNXRnSzAWV3kV_8Hw
+id: claro_primary_local_tasks
+theme: claro
+region: header
+weight: 0
 provider: null
 plugin: local_tasks_block
 settings:
   id: local_tasks_block
   label: 'Primary tabs'
-  provider: core
   label_display: '0'
+  provider: core
   primary: true
   secondary: false
 visibility: {  }

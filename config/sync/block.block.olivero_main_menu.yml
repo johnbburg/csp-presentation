@@ -1,4 +1,4 @@
-uuid: 455c8a3f-d21b-4e96-9277-412feb7cc231
+uuid: f4b9eb14-616d-4daf-9e27-f7b06b93d4aa
 langcode: en
 status: true
 dependencies:
@@ -7,9 +7,11 @@ dependencies:
   module:
     - system
   theme:
-    - bartik
-id: mainnavigation
-theme: bartik
+    - olivero
+_core:
+  default_config_hash: KWAiziL39uEzmOJEql_wbUP2RtqGceL3WM2CfxhMelE
+id: olivero_main_menu
+theme: olivero
 region: primary_menu
 weight: 0
 provider: null
@@ -17,9 +19,9 @@ plugin: 'system_menu_block:main'
 settings:
   id: 'system_menu_block:main'
   label: 'Main navigation'
-  provider: system
   label_display: '0'
+  provider: system
   level: 1
-  depth: 0
-  expand_all_items: false
+  depth: 2
+  expand_all_items: true
 visibility: {  }
