@@ -1,0 +1,15 @@
+<!doctype html>
+<html>
+<body style="font:14px sans-serif;margin:0;padding:8px;background:#fee">
+<!--
+  Probe for the object-src demo. This is a same-origin HTML document loaded via
+  <object type="text/html">. Its script executes even under script-src 'self',
+  because script-src does not govern documents loaded into <object>/<embed>.
+-->
+This document was loaded into an &lt;object&gt;.
+<script>
+  parent.postMessage('object-html-script-ran', '*');
+  document.body.insertAdjacentHTML('beforeend', '<br><strong>&hellip;and its script ran.</strong>');
+</script>
+</body>
+</html>

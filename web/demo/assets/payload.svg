@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="120" height="120" viewBox="0 0 120 120">
+  <!--
+    Probe for the object-src demo. An <img> tag will NOT execute this script,
+    but <object>/<embed> will — which is why object-src still matters.
+  -->
+  <rect width="120" height="120" fill="#fee"/>
+  <circle cx="60" cy="60" r="45" fill="#c00"/>
+  <text x="60" y="66" text-anchor="middle" fill="#fff" font-family="sans-serif" font-size="13">SVG</text>
+  <script>
+    parent.postMessage('object-svg-script-ran', '*');
+  </script>
+</svg>

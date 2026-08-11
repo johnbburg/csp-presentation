@@ -4,116 +4,235 @@
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
-		<title>CSP</title>
+		<title>Content Security Policy in Drupal</title>
+
+		<!-- DM Sans — Forum One brand typeface -->
+		<link rel="preconnect" href="https://fonts.googleapis.com">
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+		<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,200;0,9..40,400;0,9..40,600;0,9..40,800;1,9..40,400&display=swap">
 
 		<link rel="stylesheet" href="dist/reset.css">
 		<link rel="stylesheet" href="dist/reveal.css">
-		<link rel="stylesheet" href="dist/theme/blood.css" id="theme">
+		<link rel="stylesheet" href="dist/theme/f1.css" id="theme">
 		<link rel="stylesheet" href="custom.css">
 
 		<!-- Theme used for syntax highlighted code -->
-		<link rel="stylesheet" href="plugin/highlight/monokai.css" id="highlight-theme">
+		<link rel="stylesheet" href="dist/plugin/highlight/monokai.css" id="highlight-theme">
 	</head>
 	<body>
 		<div class="reveal">
 			<div class="slides">
 				<section>
 					<section>
-						<h2>Security,</h2>
-						<h3>Content Security Policy,</h3>
-						<h3>Background Images,</h3>
-						<h3>And Mobile performance,</h3>
-            <p>Use arrow keys to move slides</p>
+						<img class="f1-brandmark" src="images/forumone-logo-white.svg" alt="Forum One">
+						<h2>Your Security Scan Came Back With an F</h2>
+						<h3>Content Security Policy in Drupal</h3>
+            <p>Drupal GovCon 2026</p>
+            <p>www.drupal-csp.net/pres/</p>
+						<p style="font-size:.6em; opacity:.7">Use arrow keys to move slides</p>
+					<aside class="notes">
+					  <p>Welcome to Content Security Policy in Drupal.</p>
+					</aside>
 					</section>
-					<section>
-						<h3>John Brandenburg</h3>
-						<h4>Technical Architect</h4>
-						<img src="images/john.png"/>
-					</section>
+					<section class="bio">
+						<div class="f1-speaker">
+							<img src="images/john.png" alt="John Brandenburg" />
+							<div class="who">
+								<h3>John Brandenburg</h3>
+								<h4>Technical Architect</h4>
+								<img class="f1-speaker-logo" src="images/forumone-logo-white.svg" alt="Forum One" />
+							</div>
+						</div>
+            <aside class="notes">
+              <p>so I actually created this presentation 5 years ago, and did it internally at Forum One for the
+                engineering team. Of course this  is coming off  of a deep dive I did myself on a project to add CSP to
+                it. I had intended to submit it for a conference sooner, but Life just sort of got in the way.</p>
+            </aside>
+          </section>
 				</section>
 				<section>
 					<section><h2>Web Page Test</h2>
 						<img src="images/webpagetest.png">
+					<aside class="notes">
+            <p>This is webpagetest.org looked in 2021. It's a performance tool first.</p>
+            <p>But, back in the day, they also provided a security scan as a side feature, run through Qualys. Which, would give you a letter grade. I don't believe they do this anymore, but I haven't actually used their "Authenticated" scan lately either.</p>
+					</aside>
 					</section>
-					<section>
-						<h4>Security scores of recent sites</h4>
-						<div class="flex-container-column">
-							<div clss="flex-element"><img src="images/F.png"></div>
-						</div>
 
-					</section>
+          <section><h2>New Web Page Test</h2>
+            <img src="images/new-webpagetestorg-2026.png">
+            <aside class="notes">
+              <p>This is webpagetest.org today. They do now require you to have an account to run more than just one test, but back in the day, you could run quite a few before any limits hit.</p>
+            </aside>
+          </section>
+
 					<section>
+						<h4>Security scores of recent sites (at the time)</h4>
+							<img src="images/F.png">
+
+					<aside class="notes">
+					  <p>So I was quite surprised, when I entered a number of sites maintained by myself, and my colleagues, to see the abysmal security ratings we were getting.</p>
+					  <p>But the funny thing was, you could easily bring an F or a D score to an A, just by adding two http headers.</p>
+					</aside>
+					</section>
+          <section>
+            <h3>The two findings behind most "F" grades</h3>
+            <ul>
+              <li>Missing <strong>HSTS</strong> (Strict-Transport-Security)</li>
+              <li>Missing <strong>Content Security Policy</strong></li>
+            </ul>
+
+            <p>CSP is one of the most effective defenses against cross-site scripting (XSS) and supply-chain attacks &mdash; and one of the easiest things to get subtly, dangerously wrong.</p>
+            <p style="font-size:.7em; opacity:.8">Today: what CSP is, the directives, the friction (unsafe-inline, hashes vs. nonces, analytics &amp; GTM), and how to roll it out in Drupal without taking down your editors or your analytics.</p>
+
+            <aside class="notes">
+              <p>If you've ever dealt with a CISA scan report, you might already be intimately familiar with these.</p>
+              <p> Strict transport Security - or called by the "retronym" "HSTS" for short just tells browsers that they should always connect to a site via https going forward, to avoid any accidental slips back over to regular http</p>
+              <p>And content Security policy, which is mainly what we are here to talk about, allows you to control what assets are served from your site<p>
+
+            </aside>
+          </section>
+          <section>
 						<h3>Don't feel too bad</h3>
-						<a target="_blank" href="https://www.webpagetest.org/result/200917_8Q_a6aff13648d0aa47be3b5d4105224b72/">
 						<img src="images/google-webpagetest.png"/>
-						</a>
-            <a target="_blank" href="https://www.webpagetest.org/result/200924_PK_f12e38e669c5f4308c866019ab05d7e6/">mail.google.com Gets an A+ though.</a>
+            <p>mail.google.com got an A+ though.</p>
             <p>Judge your security posture by the needs of your site.</p>
             <p>PII?</p>
             <p>Finance?</p>
 
+					<aside class="notes">
+					  <p>Google's own search page scored badly here too (at the time).</p>
+					  <p>The point is that a grade isn't a moral judgment — it depends what the site actually does. Mail handles real user data and scores much better. So the question to ask is what your site is holding, not what letter you got.</p>
+          </aside>
 					</section>
-          <section>
-            <h3>Low grades are due to:</h3>
-            <ul>
-              <li>Strict Transport Security - HSTS</li>
-              <li>Content Security Policy - CSP</li>
-            </ul>
-            <p>It also may call out a low an XSS issue, and X Frame options, but those two are the "high severity" items</p>
-          </section>
 
         </section>
 				<section>
+          <section>
+            <h1>HTTP Headers</h1>
+            <aside class="notes">
+              <p>I know we are at all skill levels here. So you may not be familiar with what these are. Let me bring you up to speed.</p>
+            </aside>
+          </section>
+
+          <section>
+            <h2>What are HTTP Headers?</h2>
+            <p>Litle bits of information about the response you received from the server.</p>
+            <p>How do you see them?</p>
+            <aside class="notes">
+              <p>Litle bits of information about the response you received from the server.</p>
+            </aside>
+          </section>
+
+          <section>
+            <h2>See them in your Browser Tool's Network tab</h2>
+            <img src="images/http-header-example.png" />
+            <aside class="notes">You can see them in your browser's network tab.</aside>
+          </section>
+
+          <section>
+            <h2>Or just use curl</h2>
+            <pre>
+            <code class="bash shell">
+$ curl -I https://www.drupal-csp.net/pres/
+HTTP/2 200
+date: Tue, 11 Aug 2026 17:49:51 GMT
+content-type: text/html
+...
+          </code>
+          </pre>
+            <aside class="notes">Or just use curl. Which is fast, easy, and provides a lot of flexibility.</aside>
+
+          </section>
+        </section>
+        <section>
+
 					<section>
 						<h2>What is HSTS?</h2>
-						<p>A header that is sent in the page request that tellsthe browser to connect to that domain via HTTPS</p>
-						<pre><code class="http">strict-transport-security: max-age=31536000; includeSubDomains</code></pre>
-					</section>
-					<section>
-						<h1>http headers</h1>
+						<p>A response header that tells the browser to always connect to that domain over HTTPS.</p>
+						<pre><code class="http">strict-transport-security:
+  max-age=31536000; includeSubDomains; preload</code></pre>
+            <p>use <a href="https://hstspreload.org/">https://hstspreload.org/</a> for validation and to register  for preloading.</p>
+					<aside class="notes">
+            <p>So I'll keep  this short, since you here to learn about CSP. But since HSTS was the other  half  of getting to an A grade, I'm covering it.</p>
+					  <p>This tells the browser never to use plain http for this domain again (or for as long as the max-age is set).</p>
+					  <p>Everything about it is in that one header, which is why it takes five minutes and CSP takes a quarter.</p>
+            <p>Some other gotchyas though</p>
+            <p>It's improper to  include this in a regular http response, even if you are redirecting to https</p>
+            <p>You shouldn't combine redirects for non-www and https. Redirect to https first, then issue a second redirect for www.</p>
+          </aside>
 					</section>
 					<section>
 						<h3>How can I set up HSTS?</h3>
-						<p>In Drupal, the <a target="_blank" href="https://www.drupal.org/project/seckit">Security Kit</a> module can be used. You can also just set the header directly in PHP.</p>
-						<p>In Wordpress. Also set the header directly. There are also Plugins available.</p>
+						<p>In Drupal, the <a target="_blank" href="https://www.drupal.org/project/seckit">Security Kit</a> module can do it. You can also set the header directly in PHP, or (better) at the web server / CDN layer.</p>
+            <p>Avoid slip when adding redirects</p>
+					<aside class="notes">
+					  <p>Preference order is web server or CDN first, then a module.</p>
+					  <p>It's a static header that never changes, so there's no real reason for PHP to be generating it on every request.</p>
+					</aside>
 					</section>
 					<section><h2>Warning</h2>
-					<p>If a site was setup to use HSTS, and you ever let the certificate expire, no one will be able to access the site.</p></section>
+					<p>Once a site sends HSTS, if you ever let the certificate expire, no one will be able to reach the site.</p>
+					<aside class="notes">
+					  <p>The failure mode here is total, which is why it gets its own slide.</p>
+					  <p>Browsers remember the header for as long as you told them to. So if the certificate lapses, nobody can reach the site, and there is no way to reach out and tell them otherwise. Start with a short max-age and raise it once you trust your renewal process.</p>
+					</aside>
+					</section>
 
 				</section>
 				<section>
 					<section>
 						<h3>What is CSP?</h3>
-						<p>A protocol that allows you to define the acceptable sources a website can use to access resources</p>
+						<p>A policy that defines the acceptable sources a page is allowed to load resources from.</p>
+					<aside class="notes">
+					</aside>
 					</section>
 					<section>
             <h3>Yeah, but what does that mean?</h3>
+          <aside class="notes">
+          </aside>
           </section>
           <section>
-            <h3>An HTTP header that...</h3>
+            <h3>An HTTP header that&hellip;</h3>
             <p>Defines what sources can be used on a web page.</p>
-            <pre><code>content-security-policy: default-src 'self';</code></pre>
-            <p>From here, you can add domains, nonces, hashes, protocols, and other options.</p>
+            <pre><code class="http">content-security-policy: default-src 'self';</code></pre>
+            <p>From here you add domains, nonces, hashes, protocols, and other options.</p>
+          <aside class="notes">
+            <p>Same shape as HSTS — it's one header.</p>
+            <p>Everything else in this talk is detail about what goes after the colon.</p>
+          </aside>
           </section>
 				</section>
 				<section>
-					<section><h2>Why do I need a Content Security Policy?</h2></section>
+					<section><h2>Why do I need a Content Security Policy?</h2>
+					<aside class="notes">
+					  <p>Move from what it is to why anybody bothers.</p>
+					  <p>One example is enough here — I don't want to turn this into a scare session.</p>
+            <p>Basically, If someone successfully injects some code into your site, they might be able to exfiltrate user data. So PII, Credit Card info, admin session tokens.</p>
+					</aside>
+					</section>
 
-					<section><h3>British airways hack in 2018</h3>
+					<section><h3>British Airways breach (2018)</h3>
 						<ul>
-							<li>380,000 credit card details.</li>
-							<li>Facing £183m fine (GDPR).</li>
+							<li>~380,000 card payments skimmed by injected JavaScript (Magecart).</li>
+							<li>Initially fined &pound;183m GDPR  &mdash; <strong>reduced to &pound;20m in 2020</strong>.</li>
 						</ul>
-            <p>These days, hacking is automated, someone may just want to install a bitcoin miner.</p>
-            <p>No site is too small to hack.</p>
+            <p>A CSP that restricted script sources would have blocked the attacker's exfiltration script.</p>
+            <p>Hacking is automated now &mdash; someone may just want to install a cryptominer. No site is too small.</p>
+					<aside class="notes">
+
+            <p>This is the example I used in the original version of this presentation.</p>
+            <p>British airways, about  380k skimmed payments, resulting in significant fines.</p>
+            <p>But there have been more since, and it just seems that "Supply Chain" vulnerabilities are becoming more and more frequent.</p>
+            <p>As Agentic AIs are pretty good at finding and exploiting vulnerabilities.</p>
+
+					</aside>
 					</section>
 				</section>
 
-
-
         <section>
           <section>
-            <h2>Directives:</h2>
+            <h2>Directives</h2>
             <div style="display: inline-block; width: 48%; valign:top; font-size:.6em">
               <ul>
                 <li>default-src</li>
@@ -125,7 +244,7 @@
                 <li>manifest-src</li>
                 <li>media-src</li>
                 <li>object-src</li>
-                <li>prefetch-src</li>
+                <li>worker-src</li>
               </ul>
 
             </div>
@@ -137,107 +256,323 @@
                 <li>style-src</li>
                 <li>style-src-attr</li>
                 <li>style-src-elem</li>
-                <li>worker-src</li>
                 <li>base-uri</li>
                 <li>form-action</li>
                 <li>frame-ancestors</li>
-                <li>navigate-to</li>
+                <li>upgrade-insecure-requests</li>
               </ul>
 
             </div>
-            <p>For details, see the <a href="https://content-security-policy.com/" target="_blank">(CSP)
-              Quick Reference Guide</a></p>
+            <p style="font-size:.6em">For details, see the <a href="https://content-security-policy.com/" target="_blank">CSP Quick Reference Guide</a> and <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Content-Security-Policy" target="_blank">MDN</a>.</p>
 
+          <aside class="notes">
+            <p>A CSP is broken up into various "directives" that governs a type  of resource.</p>
+            <p>There are quite a few. No need to memorize these.</p>
+          </aside>
+          </section>
+
+          <section>
+            <h2>Rules apply from specific to general</h2>
+            <p>Browsers apply the most specific matching directive. If the specific one is absent, they fall back to the more general one.</p>
+          <aside class="notes">
+            <p>This is the mental model for the next several slides, so it's worth being clear before moving on.</p>
+          </aside>
           </section>
           <section>
-            <h2>Rules Apply from Specific to General</h2>
-            <p>Browsers will apply rules that go from the most specific to most general. So if rules are missing for
-              the more specific rules, they will apply the more general ones.</p>
+            <h2>From top to bottom</h2>
+            <ul>
+              <li>script-src-attr</li>
+              <li>script-src</li>
+              <li>default-src</li>
+            </ul>
+            <p>Always set <code>default-src</code> as your fallback.</p>
+            <p style="font-size:.7em; opacity:.8">Support for the granular directives is now broad &mdash; e.g. Firefox shipped <code>script-src-attr</code> in v108 (Dec 2022), so it's safe to rely on today.</p>
+          <aside class="notes">
+            <p>Walk down the list.</p>
+            <p>Most specific one wins. If it isn't there, you fall through to the next one down.</p>
+            <p>Now, my apologies for the next few slides, it's about to get dense, but then it will get better. And I admit, I'm not a javascript master, so it's a stretch for me as well.</p>
+          </aside>
+          </section>
+
+          <section>
+            <h3>The <code>default-src</code> gotcha</h3>
+            <p>A resource type is unrestricted when none of the directives in its fallback chain is present.</p>
+            <pre><code class="http">content-security-policy: script-src 'self';</code></pre>
+            <p style="font-size:.8em">Scripts &mdash; and workers via fallback &mdash; are restricted. Images, styles, fonts, frames and connections are not.</p>
+            <p style="font-size:.52em; opacity:.65">Spec: <a href="https://www.w3.org/TR/CSP/#directive-default-src" target="_blank"><code>default-src</code></a> &middot; <a href="https://www.w3.org/TR/CSP/#directive-fallback-list" target="_blank">fallback list</a></p>
+          <aside class="notes">
+            <p>This is the part people miss.</p>
+            <p>The precise rule is that the browser walks the fallback chain and uses the first directive it finds. Here, <code>script-src</code> also covers script elements, script attributes and workers. Resource types with no directive anywhere in their chain are not restricted by CSP.</p>
+          </aside>
+          </section>
+
+          <section>
+            <h2>The fallback trap</h2>
+            <p>Fallbacks are not merged. The first directive present in the chain wins.</p>
+            <pre><code class="http">content-security-policy:
+  child-src 'self' td.doubleclick.net;
+  frame-src 'self';</code></pre>
+            <p style="font-size:.8em"><code>frame-src</code> governs frames, so the iframe is blocked. <code>child-src</code> is not consulted.</p>
+            <p style="font-size:.7em; opacity:.8">The console reports the block &mdash; not that <code>child-src</code> was shadowed.</p>
+            <p style="font-size:.52em; opacity:.65">Spec: <a href="https://www.w3.org/TR/CSP/#directive-fallback-list" target="_blank">fetch-directive fallback list</a></p>
+          <aside class="notes">
+            <p>This is a real bug from a project I was on recently.</p>
+            <p>The browser reports an ordinary <code>frame-src</code> violation when the frame is attempted. It does not diagnose the configuration mistake: nothing says the source listed under <code>child-src</code> has stopped applying to frames.</p>
+          </aside>
           </section>
           <section>
-            <li>script-src-attr</li>
-            <li>script-src</li>
-            <li>default-src</li>
-            <p>Also note not all browsers implement all categories. Firefox did not support <code>script-src-attr</code> until version 108, released Dec. 2022.</p>
+            <h3>&hellip;and the dead entry isn't inert</h3>
+            <p>With <code>frame-src</code> present, <code>child-src</code> no longer governs frames. Without <code>worker-src</code>, it still governs workers.</p>
+            <p style="font-size:.78em"><code>worker-src</code> &rarr; <code>child-src</code> &rarr; <code>script-src</code> &rarr; <code>default-src</code></p>
+            <p style="font-size:.75em; opacity:.85">Removing <code>child-src</code> can therefore change worker behavior through the next fallback.</p>
+            <p style="font-size:.52em; opacity:.65">Spec: <a href="https://www.w3.org/TR/CSP/#directive-worker-src" target="_blank"><code>worker-src</code></a> &middot; <a href="https://www.w3.org/TR/CSP/#directive-fallback-list" target="_blank">fallback list</a></p>
+          <aside class="notes">
+            <p>This matters while <code>worker-src</code> is absent. Removing <code>child-src</code> exposes the next worker fallback, so the result depends on <code>script-src</code> and then <code>default-src</code>. An explicit <code>worker-src</code> would shadow all three.</p>
+          </aside>
+          </section>
+
+          <section>
+            <h2>&hellip;except when they don't</h2>
+            <p>Five directives do <strong>not</strong> fall back to <code>default-src</code>. Setting <code>default-src 'self'</code> gives you exactly nothing on any of them:</p>
+            <ul style="font-size:.8em">
+              <li><code>form-action</code> &mdash; where forms may submit</li>
+              <li><code>base-uri</code> &mdash; whether an injected <code>&lt;base&gt;</code> can reroute every relative URL</li>
+              <li><code>frame-ancestors</code> &mdash; who may frame you</li>
+              <li><code>sandbox</code>, <code>upgrade-insecure-requests</code></li>
+            </ul>
+            <p style="font-size:.72em; opacity:.85">They're navigation and document directives, not fetch directives. The fallback chain only exists inside the fetch family.</p>
+          <aside class="notes">
+            <p>The other half of the rule I just taught.</p>
+            <p>These are navigation and document directives. The fallback chain only exists inside the fetch family, which is not obvious from any of the documentation.</p>
+          </aside>
+          </section>
+          <section>
+            <h3>Which means this policy&hellip;</h3>
+            <pre><code class="http">content-security-policy: default-src 'self';</code></pre>
+            <p>&hellip;will happily let an injected form post your users' data to my server. No violation. No console error.</p>
+            <p style="font-size:.75em; opacity:.85">That's the same <code>enforced</code> policy from the demo &mdash; the one that looks locked down.</p>
+          <aside class="notes">
+            <p>This is the same enforced policy from the demo — the one that looks locked down.</p>
+            <p>Let this sit for a second before moving on.</p>
+          </aside>
+          </section>
+          <section>
+            <h3><code>object-src</code> isn't just a Flash relic</h3>
+            <p>Flash is why the directive exists. It is not why it's still in the recommended policy.</p>
+            <p style="font-size:.8em"><code>&lt;object&gt;</code> and <code>&lt;embed&gt;</code> load documents that <strong>execute script</strong> &mdash; and <code>script-src</code> does not govern them. An HTML or SVG file on your own origin (a file upload, a webform attachment) becomes script execution that your <code>script-src</code> never sees.</p>
+            <pre><code class="http">object-src 'none';</code></pre>
+          <aside class="notes">
+            <p>The common assumption is that this one is dead weight now that Flash is gone.</p>
+            <p>It isn't. Object and embed load documents that run script, and script-src doesn't govern them. A file upload or a webform attachment is the realistic way somebody gets a file onto your origin.</p>
+          </aside>
           </section>
 
           <section>
             <h2>CSP in Drupal</h2>
+          <aside class="notes">
+            <p>Shift from the spec to the practical side.</p>
+            <p>From here on it's mostly Drupal, so this is a good place to check whether the room is mostly Drupal people.</p>
+          </aside>
           </section>
           <section>
-            <p>So you should always enable the <code>default-src</code>as a fallback.</p>
-            <p>Which is not enabled by default in th csp Drupal module.</p>
+            <p>Always enable <code>default-src</code> as a fallback&hellip;</p>
+            <p>&hellip;which is <em>not</em> on by default in the Drupal <a href="https://www.drupal.org/project/csp" target="_blank">CSP module</a>. Turn it on.</p>
+          <aside class="notes">
+            <p>This is the first thing to do after you install the module.</p>
+          </aside>
           </section>
           <section>
             <h3>Report-only mode</h3>
-            <p>Allows you to see what would be blocked, without blocking it.</p>
+            <p>Lets you see what <em>would</em> be blocked, without blocking it.</p>
+            <pre><code class="http">content-security-policy-report-only: default-src 'self';</code></pre>
+            <p>Your best friend for rolling CSP out incrementally.</p>
+          <aside class="notes">
+            <p>You might be thinking at this point, CSP is kind of complex, and easy to mess up, and you are completely correct.</p>
+            <p>Fortunately we have report only mode. When this is one, instead of blocking sources, it will pop up with an error in the console.</p>
+            <p>You also have an option to send these reports to the Drupal log... but I would advise against that on a high traffic site... This can cause many many POST requests hitting your back-end, which can hurt performance, to put it mildly.</p>
+
+          </aside>
           </section>
         </section>
 
         <section>
-          <section><h2>Key features in CSP</h2></section>
+          <section><h2>Key features in CSP</h2>
+          <aside class="notes">
+            <p>The next few slides are the things you'll actually be typing into a config form.</p>
+            <p>Everything so far has been the model; this is the vocabulary.</p>
+          </aside>
+          </section>
           <section>
-            <h3><code>unsafe-inline</code></h3>
-            <pre><code class="http">Content-Security-Policy: default-src 'unsafe-inline'</code></pre>
-            <p>Still better than not using a CSP at all.</p>
+            <h3><code>'unsafe-inline'</code></h3>
+            <pre><code class="http">content-security-policy: script-src 'self' 'unsafe-inline';</code></pre>
+            <p>Allows inline scripts/styles. i.e. anything inside a <code>&#x3C;script&#x3E;</code> tag, or "onclick" handler.</p>
+            <p>Weak &mdash; but still better than no CSP at all as a starting point.</p>
+          <aside class="notes">
+            <p>This is where most people start, and it's a reasonable first step.</p>
+            <p>It's also why a lot of policies score badly — people turn it on to stop the errors and then never come back to it.</p>
+          </aside>
           </section>
 
           <section>
             <h2>Hashes</h2>
-            <pre><code class="http">Content-Security-Policy: script-src 'sha256-B2yPHKaXnvFWtRChIbabYmUBFZdVfKKXHbWtWidDVF8='
-            </code></pre>
-            <p>Script or style allow-listed by referencing a base64/sha256/sha384/sha512 hashed version of the code.</p>
-            <p>Using hashes can be problematic, as they will invalidate any <code>"unsafe-inline"</code> options.</p>
-            <a target="_blank" href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy/script-src">https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy/script-src</a>
+            <pre><code class="http">content-security-policy: script-src 'sha256-B2yPHKaXnvFWtRChIbabYmUBFZdVfKKXHbWtWidDVF8='</code></pre>
+            <p>Allow-list a specific inline script or style by the base64-encoded SHA hash of its contents.</p>
+            <p>Note: adding any hash or nonce to <code>script-src</code> makes the browser <strong>ignore</strong> <code>'unsafe-inline'</code> (a feature, not a bug).</p>
+            <a target="_blank" href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Content-Security-Policy/script-src">MDN: script-src</a>
+          <aside class="notes">
+            <p>Hash the contents of the block, put the hash in the header.</p>
+            <p>The detail worth pointing at is the last line. Adding any hash or nonce switches unsafe-inline off, whether you meant it to or not.</p>
+          </aside>
           </section>
 
           <section>
-            <h2>Don't use hashes</h2>
-            <p><a target="_blank" href="https://stackoverflow.com/questions/52724956/why-doesnt-chrome-respect-my-content-security-policy-hashes" target="_blank">
-              Chrome won't use sources defined as attributes.
-            </a></p>
+            <h2>The hash gotcha</h2>
+            <p>Plain hashes (and nonces) only apply to <em>elements</em> &mdash; <code>&lt;script&gt;</code> / <code>&lt;style&gt;</code> blocks.</p>
+            <p>They do <strong>not</strong> cover inline event handlers (<code>onclick=</code>) or inline <code>style=""</code> attributes&hellip;</p>
+            <p><a target="_blank" href="https://stackoverflow.com/questions/52724956/why-doesnt-chrome-respect-my-content-security-policy-hashes">Reference</a></p>
+          <aside class="notes">
+            <p>This is the one that costs people an afternoon.</p>
+            <p>Hashes cover elements. They don't cover attributes, and the error message doesn't make that obvious.</p>
+          </aside>
+          </section>
+
+          <section>
+            <h3><code>'unsafe-hashes'</code></h3>
+            <pre><code class="http">content-security-policy: script-src 'unsafe-hashes' 'sha256-...';</code></pre>
+            <p>The CSP Level 3 keyword that lets a hash match an inline <strong>event handler</strong> or <strong>style attribute</strong> &mdash; the gap from the previous slide.</p>
+            <p>Still "unsafe" (less so than <code>'unsafe-inline'</code>). The better fix is to remove inline handlers/attribute styles entirely.</p>
+            <a target="_blank" href="https://content-security-policy.com/unsafe-hashes/">content-security-policy.com/unsafe-hashes</a>
+          <aside class="notes">
+            <p>This is the escape hatch for the previous slide.</p>
+            <p>Better than unsafe-inline, still not something to be happy about. Removing the inline handler is the actual fix.</p>
+          </aside>
           </section>
 
           <section>
             <h2>Nonces</h2>
-            <pre><code >&lt;style nonce="ABC123"&gt;</code></pre>
-            <p>Script or style allow-listed by referencing an arbitrary, server-defined string. These should be generated new for each request.</p>
-              <a target="_blank" href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy/script-src">https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy/script-src</a>
+            <pre><code class="html">&lt;script nonce="ABC123"&gt;&hellip;&lt;/script&gt;</code></pre>
+            <pre><code class="http">content-security-policy: script-src 'nonce-ABC123'</code></pre>
+            <p>Allow-list inline code by an arbitrary, server-generated string. <strong>Generate a fresh nonce on every request.</strong></p>
+            <a target="_blank" href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Content-Security-Policy/script-src">MDN: script-src</a>
+          <aside class="notes">
+            <p>A random value, regenerated on every request, matched between the header and the tag.</p>
+          </aside>
           </section>
           <section><h2>Don't use static nonces.</h2>
-          <p>They defeat the purpose of a CSP.</p></section>
+          <p>A nonce that never changes is just a password the attacker can read &mdash; it defeats the purpose.</p>
+          <aside class="notes">
+            <p>This happens more than you would expect, usually when somebody hardcodes one to get past an error and it never gets changed back.</p>
+          </aside>
+          </section>
 
-          <section><h2>Hashes and Nonces are difficult to manage...</h2>
+          <section><h2>Hashes and nonces are tedious to manage by hand&hellip;</h2>
+          <aside class="notes">
+            <p>Setup for the next slide.</p>
+          </aside>
           </section>
 					<section>
-            <img src="images/csp-long.png" alt="content-security-policy: default-src 'self'; font-src 'self' d2rluhlsrx2f7f.cloudfront.net dujgk33i56scb.cloudfront.net fonts.gstatic.com; frame-src 'self' www.google.com; img-src 'self' d2rluhlsrx2f7f.cloudfront.net dujgk33i56scb.cloudfront.net scontent-iad3-1.cdninstagram.com static.addtoany.com www.google-analytics.com scontent-lga3-2.cdninstagram.com data:; script-src 'self' 'unsafe-inline' www.googletagmanager.com www.google.com www.gstatic.com www.google-analytics.com js-agent.newrelic.com bam.nr-data.net d2rluhlsrx2f7f.cloudfront.net dujgk33i56scb.cloudfront.net https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://static.addtoany.com; style-src 'self' 'unsafe-inline' static.addtoany.com d2rluhlsrx2f7f.cloudfront.net dujgk33i56scb.cloudfront.net fonts.googleapis.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; frame-ancestors 'self'; report-uri http://rti-sra.forumone.dev/report-uri/enforce">
-            <p>I forgot to set "<code>default-src</code>"</p>
+            <img src="images/csp-long.png" alt="A long, hand-maintained content-security-policy header">
+            <p>&hellip;and easy to get wrong. (I forgot to set <code>default-src</code> here.)</p>
+					<aside class="notes">
+					  <p>This is a real header I maintained by hand.</p>
+					  <p>Point at how long it is. This slide is the argument for the whole next section.</p>
+					</aside>
 					</section>
 				</section>
 
         <section>
-          <h3>What are the current limitations of CSP?</h3>
-          <p>Safari has been a bit buggy historically.</p>
-          <p>Inconsistent browser support of categories.</p>
-          <p>A weak CSP can still let attacks through.</p>
-          <p><a target="_blank" href="https://security.stackexchange.com/questions/131149/what-are-the-limitations-of-content-security-policy">Even a strong one can be circumvented</a>
+          <section><h2>The modern recommendation: a "strict" CSP</h2>
+            <p style="font-size:.8em">Allow-listing host after host is brittle and often bypassable. Today's guidance (<a href="https://web.dev/articles/strict-csp" target="_blank">web.dev</a>, Google) is a <strong>nonce + <code>'strict-dynamic'</code></strong> policy.</p>
+          <aside class="notes">
+            <p>This is a genuine shift in guidance, not just a preference.</p>
+            <p>The host allow-list approach doesn't scale and it turns out to be bypassable more often than people assumed.</p>
+          </aside>
+          </section>
+          <section>
+            <h3><code>'strict-dynamic'</code></h3>
+            <pre><code class="http">content-security-policy:
+  script-src 'nonce-{random}' 'strict-dynamic' https: 'unsafe-inline';
+  object-src 'none';
+  base-uri 'none';</code></pre>
+            <p style="font-size:.75em">A nonce'd script may load further scripts, and trust is <em>propagated</em> to them &mdash; so you don't have to nonce or allow-list every third-party file. Older browsers ignore <code>'strict-dynamic'</code> and fall back to the host list / <code>'unsafe-inline'</code>.</p>
+          <aside class="notes">
+            <p>Trust propagates from the nonced script to whatever it loads, so you stop maintaining a list of script hosts.</p>
+            <p>Worth flagging that this published recipe has no default-src. That's deliberate in the original — it's aimed squarely at XSS — but add one in production, for the reason two sections back.</p>
+          </aside>
+          </section>
+          <section>
+            <h3>Rule of thumb</h3>
+            <ul>
+              <li><strong>Nonces</strong> when you can generate markup dynamically (most Drupal pages).</li>
+              <li><strong>Hashes</strong> when the content is static / cached and you can't inject a per-request nonce.</li>
+            </ul>
+          <aside class="notes">
+            <p>Short answer for the question people are about to ask.</p>
+          </aside>
+          </section>
+          <section>
+            <h3>Trusted Types</h3>
+            <p>A layer <em>on top of</em> CSP (<code>require-trusted-types-for 'script'</code>) that locks down DOM-XSS sinks like <code>innerHTML</code> &mdash; forcing dangerous values through a named policy where you actually sanitize.</p>
+            <pre><code class="http">content-security-policy: require-trusted-types-for 'script'; trusted-types app-sanitizer;</code></pre>
+            <p style="font-size:.7em; opacity:.8">No longer Chromium-only: Safari 26 (2025) and Firefox 148 (early 2026) added it, so it's now a cross-browser defense. It doesn't sanitize <em>for</em> you, and the cross-browser floor is recent &mdash; deploy report-only first.</p>
+          <aside class="notes">
+            <p>This is a different kind of protection from the rest of the talk.</p>
+            <p>Everything else is about where things load from. This one constrains what your own code is allowed to do with an untrusted string.</p>
+          </aside>
+          </section>
+          <section>
+            <h2>On the horizon &mdash; don't ship these yet</h2>
+            <p style="font-size:.78em">CSP Level 3 is still a W3C <em>Working Draft</em>: it's the model browsers actually implement, but not a finished Recommendation, and it keeps gaining narrow features. Worth knowing, not yet baseline:</p>
+            <ul style="font-size:.68em">
+              <li><code>'report-sha256'</code> / <code>384</code> / <code>512</code> &mdash; script-inventory <em>telemetry</em> (browser reports a loaded script's hash); Chrome 133+. Not the same as allow-listing by hash.</li>
+              <li><code>'trusted-types-eval'</code> &mdash; a narrower alternative to <code>'unsafe-eval'</code> when Trusted Types is active.</li>
+              <li>Chromium origin trial: URL hashes, eval hashes, <code>'strict-dynamic-url'</code> &mdash; names look like standard hashes but aren't portable.</li>
+              <li>Embedded Enforcement (<code>&lt;iframe csp="&hellip;"&gt;</code>) &mdash; a separate draft, not a replacement for <code>frame-ancestors</code>/sandbox.</li>
+            </ul>
+          <aside class="notes">
+            <p>Skim this one.</p>
+            <p>The point is just that the spec is still moving, so be careful about copying things you find in origin trials or recent blog posts.</p>
+          </aside>
+          </section>
+        </section>
+
+        <section>
+          <h3>Current limitations of CSP</h3>
+          <p>Safari was historically buggy &mdash; much improved now, though still trails Chromium on the newest bits (e.g. Trusted Types).</p>
+          <p>Granular directive support is now broad, but not universal.</p>
+          <p>A weak CSP (lots of <code>'unsafe-inline'</code> / wildcards) can still let attacks through &mdash;</p>
+          <p><a target="_blank" href="https://security.stackexchange.com/questions/131149/what-are-the-limitations-of-content-security-policy">and even a strong one can sometimes be circumvented.</a></p>
+        <aside class="notes">
+          <p>Worth being honest about what it doesn't do.</p>
+          <p>A weak policy gives you the header and the passing grade without much of the protection.</p>
+        </aside>
         </section>
 
 
         <section>
-          <section><h2>Source List Key Words</h2>
+          <section><h2>Source-list keywords</h2>
           <ul>
-            <li>none</li>
-            <li>self</li>
-            <li>unsafe-inline</li>
-            <li>unsafe-eval</li>
+            <li>'none'</li>
+            <li>'self'</li>
+            <li>'unsafe-inline'</li>
+            <li>'unsafe-eval'</li>
+            <li>'unsafe-hashes'</li>
+            <li>'strict-dynamic'</li>
           </ul>
+          <aside class="notes">
+            <p>Reference slide — read through it rather than dwelling on it.</p>
+            <p>The distinction worth making is that these are keywords you put inside a directive, not directives themselves. People mix the two up.</p>
+          </aside>
           </section>
-					<section>If you ever did this...
+					<section>If you ever did this&hellip;
 						<pre>
-					    <code>&#x3C;div style=&#x22;background-image: url(&#x27;...&#x27;)&#x22;&#x3E;</code>
+					    <code class="html">&#x3C;div style=&#x22;background-image: url(&#x27;...&#x27;)&#x22;&#x3E;</code>
             </pre>
-            <p>CSP will block this without the "unsafe-inline" option.</p>
+            <p>CSP blocks that inline <code>style</code> attribute unless you allow <code>'unsafe-inline'</code> (or a matching hash with <code>'unsafe-hashes'</code>).</p>
+					<aside class="notes">
+					  <p>This comes back to the hash gotcha.</p>
+					  <p>Everybody in the room has written this at some point.</p>
+					</aside>
 					</section>
         </section>
 
@@ -248,56 +583,271 @@
           <section>
             <section>
               <h3>How do you set a CSP?</h3>
-              <p>You could just set it manually in PHP...</p><p> but a CSP needs to be dynamic. --You might be seeing the challenge in implementing CSP in Drupal.</p>
+              <p>You could set it by hand in PHP&hellip; but a real CSP needs to be dynamic (fresh nonces, per-page sources). That's the challenge &mdash; and why you want a module.</p>
+            <aside class="notes">
+              <p>The nonce requirement is really what rules out doing this by hand — it has to change every request.</p>
+            </aside>
             </section>
             <section>
-              <h3>Wordpress</h3>
-              <p>Various plugins available. Not sure what is the best yet.</p>
+              <h3>WordPress</h3>
+              <p>Several plugins available; quality varies.</p>
+            <aside class="notes">
+              <p>Keep this brief. It's a Drupal talk, but the question comes up.</p>
+            </aside>
             </section>
             <section>
               <h3>Drupal</h3>
-              <p>
-                <a target="_blank" target="_blank" href="https://www.drupal.org/project/csp">CSP module</a>.
-              </p>
-              <p>
-                Do not use the "Security Kit."
-              </p>
-              <p>(<a href="https://www.drupal.org/project/drupal/issues/2789139">Bug in Drupal breaks CKEditor 4</a>)</p>
-              <p>CSP module is smart enough to automatically add <code>unsafe-inline</code> to any pages with CKEditor 4 on them.</p>
-              <p>Does not work well with ajax loaded editors (e.g. when editing Paragraphs).</p>
+              <p>Use the <a target="_blank" href="https://www.drupal.org/project/csp">CSP module</a> &mdash; it builds the policy dynamically and integrates with Drupal's asset system.</p>
+              <p>Prefer it over Security Kit for CSP specifically.</p>
+              <p style="font-size:.8em">Historical note: an old Drupal core bug broke <strong>CKEditor 4</strong> under CSP. Drupal 10/11 ship <strong>CKEditor 5</strong>, and the CSP module handles editor pages &mdash; but still test AJAX-loaded editors (e.g. editing Paragraphs).</p>
+            <aside class="notes">
+              <p>Use the CSP module.</p>
+              <p>Security Kit will set the header, but it doesn't do nonces and it doesn't know anything about Drupal's asset system, so you end up maintaining everything manually.</p>
+            </aside>
             </section>
             <section>
               <h3>Modules</h3>
               <ul>
-                <li>Content Security Policy (drupal/csp)</li>
-                <li>Attach Inline - for when you absolutely need inline javascript</li>
+                <li><a target="_blank" href="https://www.drupal.org/project/csp">Content Security Policy</a> (drupal/csp) &mdash; supports nonces and report-to.</li>
+                <li><a target="_blank" href="https://www.drupal.org/project/attachinline">Attach Inline</a> &mdash; for when you genuinely need inline JS, attached the right way.</li>
               </ul>
+            <aside class="notes">
+              <p>Two worth knowing about.</p>
+            </aside>
+            </section>
+            <section>
+              <h3>Your header is not your config</h3>
+              <p style="font-size:.85em">The CSP module composes the header at request time from three sources:</p>
+              <ol style="font-size:.75em">
+                <li><code>csp.settings</code> &mdash; what you exported.</li>
+                <li>Every <code>*.libraries.yml</code> in the codebase. <code>LibraryPolicyBuilder</code> scans external CSS/JS URLs and appends those hosts to <code>script-src</code> / <code>style-src</code>.</li>
+                <li>Any module subscribing to <code>CspEvents::POLICY_ALTER</code> &mdash; e.g. Google Tag appends GA/GTM hosts to <code>img-src</code> and <code>connect-src</code> on its own.</li>
+              </ol>
+              <p style="font-size:.7em; opacity:.85">On one site, <code>cdn.jsdelivr.net</code>, <code>unpkg.com</code>, <code>cdnjs.cloudflare.com</code> and <code>use.fontawesome.com</code> all appear in the live header and in zero lines of config. They come from contrib libraries &mdash; Webform, Font Awesome, Geofield Map.</p>
+            <aside class="notes">
+              <p>This one surprises people, including me the first time.</p>
+              <p>The module assembles the header from three sources, and only one of them is the config you exported.</p>
+            </aside>
+            </section>
+            <section>
+              <h3>So <code>curl -I</code> is the only source of truth</h3>
+              <p>Good news: the module does real work for you.</p>
+              <p>Bad news: you cannot audit your policy by reading config.</p>
+              <pre><code class="bash">curl -sI https://example.org | grep -i content-security-policy</code></pre>
+              <p style="font-size:.75em; opacity:.85">Contrib authors: <code>POLICY_ALTER</code> is how your module should declare its own CSP needs.</p>
+            <aside class="notes">
+              <p>The practical takeaway from the previous slide.</p>
+              <p>Read the header, not the config form.</p>
+            </aside>
+            </section>
+            <section>
+              <h3>And if <code>curl</code> shows you <em>two</em> policies&hellip;</h3>
+              <p>Both are enforced. The effective policy is their <strong>intersection</strong>, not their union &mdash; a resource must be allowed by every policy in force.</p>
+              <p style="font-size:.8em">So if your CDN or web server sets one and Drupal sets another, adding a host in the Drupal admin UI changes nothing. The other policy still rejects it, and nothing in Drupal will tell you why.</p>
+            <aside class="notes">
+              <p>Intersection, not union.</p>
+              <p>This is the one that makes people think the module is broken — they add a host, nothing changes, and there's no error anywhere to explain it.</p>
+            </aside>
+            </section>
+            <section>
+              <h3>Two things that will waste your afternoon</h3>
+              <ul style="font-size:.8em">
+                <li><strong>Caching.</strong> CSP is a response header, so Varnish and your CDN cache it like anything else. You change the config, test, see the old policy, and conclude the module is broken. Purge before you trust a test.</li>
+                <li><strong>Config drift.</strong> Breakages are urgent and the policy is editable in the admin UI &mdash; a recipe for hotfixing prod and never exporting. A host live in prod's active config and absent from <code>config/sync</code> gets silently reverted by the next <code>drush deploy</code>, re-breaking the tag.</li>
+              </ul>
+            <aside class="notes">
+              <p>Both of these are from real debugging.</p>
+              <p>The caching one cost me most of a morning — I had a correct change in front of me and a stale response telling me it didn't work.</p>
+            </aside>
+            </section>
+
+            <section>
+              <h2>Put the policy in code</h2>
+              <p>Both of those problems have the same root: the policy lives in a config form.</p>
+              <p>The CSP module lets modules and themes alter the policy <strong>in code</strong>, as the response is built.</p>
+              <p style="font-size:.72em; opacity:.85"><a href="https://www.drupal.org/docs/extending-drupal/contributed-modules/contributed-module-documentation/content-security-policy/altering-a-sites-policy" target="_blank">Altering a site's policy</a> &mdash; drupal.org</p>
+            <aside class="notes">
+              <p>This is the recommendation I most want people to leave with.</p>
+            </aside>
+            </section>
+            <section>
+              <h3>An event subscriber</h3>
+              <pre style="font-size:.42em"><code class="php">class EventsCspSubscriber implements EventSubscriberInterface {
+
+  public static function getSubscribedEvents(): array {
+    return [CspEvents::POLICY_ALTER =&gt; 'onPolicyAlter'];
+  }
+
+  public function onPolicyAlter(PolicyAlterEvent $event): void {
+    // DS-412: the events calendar embeds Eventbrite widgets.
+    // Owned by Marketing. Remove when the calendar is retired.
+    $event-&gt;getPolicy()-&gt;fallbackAwareAppendIfEnabled(
+      'script-src', 'https://www.eventbrite.com'
+    );
+  }
+
+}</code></pre>
+            <aside class="notes">
+              <p>Don't read the code out.</p>
+              <p>Point at the comment in the middle.</p>
+            </aside>
+            </section>
+            <section>
+              <h3>The important part is the comment</h3>
+              <p>A host added in the admin UI is an undocumented string in a YAML file. Six months later nobody knows what it's for &mdash; and nobody dares delete it.</p>
+              <p>The same host added here is in version control, next to the reason, reviewed in a pull request, and deployed with the code that needs it.</p>
+              <p style="font-size:.78em">It also can't drift. There's no active-config copy to diverge from <code>config/sync</code>.</p>
+            <aside class="notes">
+              <p>This is the actual argument.</p>
+              <p>A host added through the admin UI is a string in a YAML file with no explanation attached. Six months later nobody knows what it's for, so nobody removes it — and the list only ever grows.</p>
+              <p>Put it here instead and it's in version control, next to the reason, and it went through review like anything else.</p>
+            </aside>
+            </section>
+            <section>
+              <h3>Which method?</h3>
+              <ul style="font-size:.72em">
+                <li><code>fallbackAwareAppendIfEnabled()</code> &mdash; the one you want almost always. Respects the fallback chain, and only acts if that directive (or its fallback) is actually enabled &mdash; so you can't accidentally switch a directive on and block everything else it governs.</li>
+                <li><code>appendDirective()</code> &mdash; blunter. Adds regardless.</li>
+                <li><code>setDirective()</code> &mdash; replaces the directive outright.</li>
+                <li><code>isReportOnly()</code> &mdash; the event fires for the enforced <em>and</em> report-only policies. Check this if you need them to differ.</li>
+              </ul>
+              <p style="font-size:.68em; opacity:.85">Themes can't register event subscribers, so they get <code>hook_csp_policy_alter(Csp $policy, Response $response)</code> instead. Modules should use the event.</p>
+            <aside class="notes">
+              <p>fallbackAwareAppendIfEnabled is the safe default and it's what the docs recommend.</p>
+              <p>The others are there when you specifically need them.</p>
+            </aside>
+            </section>
+            <section>
+              <h3>Or attach it to the thing that needs it</h3>
+              <pre style="font-size:.46em"><code class="php">$element['#attached']['csp']['img-src'] = ['https://cdn.example.com'];
+
+// For inline code you genuinely can't remove:
+$element['#attached']['csp_hash']['script-src-elem'] = [
+  $hash =&gt; [Csp::POLICY_UNSAFE_INLINE, 'https://cdn.example.com'],
+];</code></pre>
+              <p style="font-size:.75em">The source travels with the render element, so it's only in the policy on pages that actually use it &mdash; and it leaves the policy when the component does.</p>
+              <p style="font-size:.68em; opacity:.85">This is also the module-native answer to "I have inline JS I can't remove," alongside Attach Inline.</p>
+            <aside class="notes">
+              <p>This scopes things better — the source is only in the policy on pages that actually use the component, and it leaves when the component does.</p>
+              <p>It's also the module's own answer to inline JavaScript you can't remove.</p>
+            </aside>
             </section>
           </section>
 
         <section>
+          <section>
+            <h3>CSP and Google Tag Manager</h3>
+            <p>Assets pulled in by analytics tools (GTM, GA) don't go through Drupal's back-end, so they aren't auto-added to your CSP &mdash; and get blocked the moment you enforce.</p>
+            <p>Options: nonce/hash the snippet (GTM supports a nonce), or have the Drupal <a href="https://www.drupal.org/project/google_tag" target="_blank">Google Tag</a> module emit the script as an external file.</p>
+            <pre><code class="html">&lt;script src="/sites/default/files/google_tag/primary/google_tag.script.js?qgt931" defer&gt;&lt;/script&gt;</code></pre>
+            <p style="font-size:.7em; opacity:.8">That's the easy half &mdash; getting the snippet itself to load.</p>
+          <aside class="notes">
+            <p>The module handles the loading half, and that's the easy part.</p>
+          </aside>
+          </section>
+          <section>
+            <h3>GTM is a hole in your change control</h3>
+            <p>The snippet is one host. What it <em>pulls</em> is unbounded, and it changes without a deploy.</p>
+            <p style="font-size:.8em">On a recent project, GTM loaded a Google Ads remarketing tag that beaconed to <code>ad.doubleclick.net</code> and got blocked on <code>connect-src</code>. Nobody on the dev team added that host &mdash; a marketer added a tag in GTM's UI.</p>
+            <p>No PR. No deploy. No notice.</p>
+            <p style="font-size:.8em">Your CSP is now coupled to a config surface you don't control.</p>
+          <aside class="notes">
+            <p>This part isn't really a technical problem.</p>
+            <p>Somebody outside the development team can change what your site loads, with no deploy and no notice. That's worth sitting with for a moment, especially in a government context.</p>
+          </aside>
+          </section>
+          <section>
+            <h3>&hellip;and <code>'strict-dynamic'</code> doesn't save you here</h3>
+            <p>It propagates trust for <strong>script loading only</strong>. It has no effect on <code>connect-src</code>, <code>img-src</code>, <code>frame-src</code>, or <code>form-action</code>.</p>
+            <p style="font-size:.85em">Ad and analytics tags are mostly beacons &mdash; fetches, pixels, iframes. Precisely the set it doesn't touch.</p>
+            <p><code>'strict-dynamic'</code> kills the <code>script-src</code> allow-list. It does not kill <em>the</em> allow-list.</p>
+            <p style="font-size:.75em; opacity:.85">You will still be hand-maintaining <code>connect-src</code> and <code>img-src</code>.</p>
+          <aside class="notes">
+            <p>This corrects an assumption that's very reasonable to make.</p>
+            <p>It only covers script loading. Beacons, pixels and iframes are exactly the traffic it doesn't touch.</p>
+          </aside>
+          </section>
+        </section>
+
+        <section>
+          <section><h3>Where do violations go? Reporting</h3>
+            <p><code>report-uri</code> is <strong>deprecated</strong>. The current mechanism is <code>report-to</code> + the Reporting API.</p>
+          <aside class="notes">
+            <p>Cover this even though it feels like an afterthought.</p>
+            <p>It's how you find out the policy is wrong before your users do.</p>
+          </aside>
+          </section>
+          <section>
+            <h3>report-to + Reporting-Endpoints</h3>
+            <pre><code class="http">reporting-endpoints: csp-endpoint="https://example.com/report"
+content-security-policy: default-src 'self'; report-to csp-endpoint;</code></pre>
+            <p style="font-size:.72em">You name an endpoint in a <code>Reporting-Endpoints</code> response header, then reference it from <code>report-to</code>. Firefox only enabled the Reporting API for CSP in v149 (early 2026), so for coverage send <em>both</em> <code>report-to</code> and legacy <code>report-uri</code> &mdash; newer browsers prefer the former. The Drupal CSP module supports reporting configuration.</p>
+            <p style="font-size:.68em; opacity:.75">And treat reports as diagnostics, not security telemetry: they're sampled, noisy (extensions!), and can leak URLs.</p>
+          <aside class="notes">
+            <p>Send both directives for the moment, until support settles.</p>
+            <p>And treat what comes back as diagnostics rather than security telemetry — browser extensions generate a lot of noise in these reports.</p>
+          </aside>
+          </section>
+        </section>
+
+
+        <section>
+          <section>
           <h3>Demonstration</h3>
             <ul>
               <li><a href="/demo/index.php" target="_blank">No CSP</a></li>
-              <li><a href="/demo/index.php?csp=report-only" target="_blank">Report Only CSP</a></li>
+              <li><a href="/demo/index.php?csp=report-only" target="_blank">Report-Only CSP</a></li>
               <li><a href="/demo/index.php?csp=enforced" target="_blank">Enforced CSP</a></li>
               <li><a href="/demo/index.php?csp=unsafe-inline" target="_blank">unsafe-inline</a></li>
               <li><a href="/demo/index.php?csp=hash" target="_blank">Hash</a></li>
               <li><a href="/demo/index.php?csp=nonce" target="_blank">Nonce</a></li>
+              <li><a href="/demo/index.php?csp=strict-dynamic" target="_blank">Nonce + strict-dynamic</a></li>
+              <li><a href="/demo/index.php?csp=report-to" target="_blank">report-to (Reporting API)</a></li>
+              <li><a href="/demo/index.php?csp=child-src" target="_blank">child-src only</a> &rarr; <a href="/demo/index.php?csp=fallback-trap" target="_blank">the fallback trap</a></li>
             </ul>
-          </a>
+          <aside class="notes">
+            <p>Pick two or three of these, not all of them.</p>
+            <p>Have the console open before switching, so people can see it fill up.</p>
+          </aside>
+          </section>
+          <section>
+            <h3>Demonstration &mdash; the unexpected directives</h3>
+            <p style="font-size:.8em"><a href="/demo/advanced.php?csp=none" target="_blank">The advanced demo</a> &mdash; each case changes one directive against the same baseline.</p>
+            <ul style="font-size:.72em">
+              <li><a href="/demo/advanced.php?csp=form-action-absent" target="_blank">form-action absent</a> &rarr; <a href="/demo/advanced.php?csp=form-action" target="_blank">set</a> &mdash; data leaves the site under <code>default-src 'self'</code></li>
+              <li><a href="/demo/advanced.php?csp=base-uri-absent" target="_blank">base-uri absent</a> &rarr; <a href="/demo/advanced.php?csp=base-uri" target="_blank">'none'</a> &mdash; one tag reroutes every URL</li>
+              <li><a href="/demo/frame-test.php?csp=frame-ancestors-absent" target="_blank">frame-ancestors absent</a> &rarr; <a href="/demo/frame-test.php?csp=frame-ancestors" target="_blank">'none'</a> &mdash; clickjacking</li>
+              <li><a href="/demo/advanced.php?csp=object-src-absent" target="_blank">object-src absent</a> &rarr; <a href="/demo/advanced.php?csp=object-src" target="_blank">'none'</a> &mdash; script execution <code>script-src</code> can't see</li>
+              <li><a href="/demo/advanced.php?csp=connect-src" target="_blank">connect-src vs strict-dynamic</a> &mdash; the beacon still dies</li>
+              <li><a href="/demo/advanced.php?csp=worker-via-child-src" target="_blank">worker via child-src</a> &rarr; <a href="/demo/advanced.php?csp=worker-src" target="_blank">worker-src 'none'</a></li>
+              <li><a href="/demo/advanced.php?csp=script-attr" target="_blank">script-src-attr vs -elem</a> &middot; <a href="/demo/advanced.php?csp=trusted-types" target="_blank">Trusted Types</a> &middot; <a href="/demo/advanced.php?csp=sandbox" target="_blank">sandbox</a></li>
+              <li><a href="/demo/advanced.php?csp=double-header" target="_blank">two CSP headers</a> &mdash; intersection, not union</li>
+            </ul>
+          <aside class="notes">
+            <p>form-action is the one to show if there's only time for one.</p>
+            <p>Say out loud that the rest are linked here for people to try afterwards, so nobody feels short-changed.</p>
+          </aside>
+          </section>
         </section>
 
 
-        <section><h1>Questions <div>and</div> Discussion</h1>
-				<p>How many "ums"?</p></section>
+        <section><h1>Questions <div>&amp;</div> Discussion</h1>
+				<p>How many "ums"?</p>
+				<aside class="notes">
+				  <p>Open it up.</p>
+				  <p>If nothing comes straight away, the form-action demo is a good one to go back to — people usually have questions once they've seen it.</p>
+				</aside>
+				</section>
 			</div>
+
+			<!-- Persistent Forum One brand mark -->
+			<img class="f1-corner-logo" src="images/forumone-brandmark.svg" alt="">
 		</div>
 
 		<script src="dist/reveal.js"></script>
-		<script src="plugin/notes/notes.js"></script>
-		<script src="plugin/markdown/markdown.js"></script>
-		<script src="plugin/highlight/highlight.js"></script>
+		<script src="dist/plugin/notes.js"></script>
+		<script src="dist/plugin/markdown.js"></script>
+		<script src="dist/plugin/highlight.js"></script>
 		<script>
 			// More info about initialization & config:
 			// - https://revealjs.com/initialization/

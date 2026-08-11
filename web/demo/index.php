@@ -2,23 +2,51 @@
 
 $csp_option = isset($_GET['csp']) ? $_GET['csp'] : '';
 $csp = '';
+// Optional extra response header (e.g. the Reporting-Endpoints header that
+// pairs with the report-to directive).
+$extra_header = '';
 $nonce = false;
 $nonce_attribute = '';
+
+/**
+ * This demo's own origin, e.g. "https://example.org".
+ *
+ * Set CSP_DEMO_ORIGIN in the environment to pin this. That is what a real
+ * deployment should do, because the fallback below reads
+ * $_SERVER['HTTP_HOST'] — the client-supplied Host header, which is a request
+ * input and not a fact about the server.
+ *
+ * The pattern check only proves the value is shaped like a host. It cannot
+ * tell your hostname from somebody else's, so on its own it does not stop a
+ * request that supplies a different real domain. That is why the pin exists,
+ * and why the directive that actually carries data (report-uri, below) uses a
+ * same-origin relative URL instead of this.
+ */
+function demo_origin() {
+  $pinned = getenv('CSP_DEMO_ORIGIN');
+  if (is_string($pinned) && $pinned !== '') {
+    return rtrim($pinned, '/');
+  }
+  $host = isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : '';
+  if (!preg_match('/^[A-Za-z0-9.-]{1,253}(:[0-9]{1,5})?$/', $host)) {
+    $host = 'localhost';
+  }
+  return (empty($_SERVER['HTTPS']) ? 'http' : 'https') . '://' . $host;
+}
 
 switch ($csp_option) {
   case 'none':
     $csp = '';
     break;
   case 'enforced':
-    $csp = "content-security-policy: default-src 'self';";
-    break;
   case 'enforced-self':
     $csp = "content-security-policy: default-src 'self';";
+    break;
   case 'report-only':
     $csp = "content-security-policy-report-only: default-src 'self';";
     break;
   case 'unsafe-inline':
-    $csp = "content-security-policy: default-src 'self' 'unsafe-inline' fonts.googleapis.com static.addtoany.com pbs.twimg.com fonts.gstatic.com www.youtube.com w.soundcloud.com;";
+    $csp = "content-security-policy: default-src 'self' 'unsafe-inline' fonts.googleapis.com static.addtoany.com picsum.photos fastly.picsum.photos fonts.gstatic.com www.youtube.com w.soundcloud.com;";
     break;
   case 'hash':
     $policies = [
@@ -28,7 +56,8 @@ switch ($csp_option) {
       'fonts.gstatic.com',
       'static.addtoany.com',
       'www.youtube.com',
-      'https://pbs.twimg.com',
+      'picsum.photos',
+      'fastly.picsum.photos',
       'w.soundcloud.com',
       '\'sha256-dadL/maigdac9kyYKsSxUmw/Mj0iCSdr5nVx4zTJARY=\'', // The audiowide font.
 //    '\'sha256-aGSaVsy2B0PTiMliSGlULZ1jBpm01TIahO82wjGzxT8=\'', // The inline js example (no hash, so let if be blocked.)
@@ -58,11 +87,83 @@ switch ($csp_option) {
       'fonts.gstatic.com',
       'static.addtoany.com',
       'www.youtube.com',
-      'https://pbs.twimg.com',
+      'picsum.photos',
+      'fastly.picsum.photos',
       'w.soundcloud.com',
       '\'nonce-'.$nonce.'\'',
     ];
     $csp = "content-security-policy: " . implode(' ', $policies) . ";";
+    break;
+
+  case 'strict-dynamic':
+    // The modern, recommended "strict" CSP (per web.dev): a nonce plus
+    // 'strict-dynamic'. The nonce'd script (AddToAny) is trusted to load its
+    // own child scripts without each one needing a nonce. Older browsers fall
+    // back to the host allow-list / 'unsafe-inline'.
+    //
+    // web.dev's canonical recipe is script-src/object-src/base-uri only. A
+    // policy with no default-src leaves every directive it doesn't name
+    // completely unrestricted, so that version would police scripts and leave
+    // images, styles, fonts and frames wide open. The default-src below is the
+    // same host list the nonce case uses, which keeps the two comparable and
+    // makes the real point visible: 'strict-dynamic' shortens script-src and
+    // does nothing for the rest of the allow-list, which you still maintain by
+    // hand.
+    $nonce = 'ABC123';
+    $nonce_attribute = 'nonce="' . $nonce . '"';
+    $policies = [
+      'default-src',
+      '\'self\'',
+      'fonts.googleapis.com',
+      'fonts.gstatic.com',
+      'static.addtoany.com',
+      'www.youtube.com',
+      'picsum.photos',
+      'fastly.picsum.photos',
+      'w.soundcloud.com',
+      '\'nonce-' . $nonce . '\'',
+    ];
+    $csp = "content-security-policy: " . implode(' ', $policies) . "; "
+      . "script-src 'nonce-{$nonce}' 'strict-dynamic' https: 'unsafe-inline'; "
+      . "object-src 'none'; base-uri 'none';";
+    break;
+
+  case 'report-to':
+    // report-uri is deprecated; the current mechanism is a named endpoint
+    // declared in a Reporting-Endpoints response header and referenced by the
+    // report-to directive. Both are sent here, which is the advice on the
+    // slides: older browsers only understand report-uri.
+    //
+    // report-uri takes a URI reference, so a relative path works and resolves
+    // against the document. That keeps reports same-origin by construction —
+    // there is no hostname in it for a request to influence. Reporting-Endpoints
+    // needs an absolute URL, so it uses the pinned origin above.
+    $extra_header = 'reporting-endpoints: csp-endpoint="' . demo_origin() . '/demo/csp-report.php"';
+    $csp = "content-security-policy-report-only: default-src 'self'; report-to csp-endpoint; report-uri /demo/csp-report.php;";
+    break;
+
+  case 'child-src':
+    // Half one of the fallback-trap pair. child-src lists the iframe hosts and
+    // no frame-src is defined, so frames fall back to child-src. Both embeds
+    // load. Everything else is permissive so the frames are the only variable.
+    $policies = [
+      "default-src 'self' 'unsafe-inline' fonts.googleapis.com fonts.gstatic.com static.addtoany.com picsum.photos fastly.picsum.photos",
+      "child-src 'self' www.youtube.com w.soundcloud.com static.addtoany.com",
+    ];
+    $csp = "content-security-policy: " . implode('; ', $policies) . ";";
+    break;
+
+  case 'fallback-trap':
+    // Half two. Identical to the above, plus a frame-src that omits the iframe
+    // hosts. Because frame-src is now present, child-src is never consulted for
+    // frames — its youtube/soundcloud entries are dead and both embeds break.
+    // Adding a directive silently narrowed what its sibling was allowing.
+    $policies = [
+      "default-src 'self' 'unsafe-inline' fonts.googleapis.com fonts.gstatic.com static.addtoany.com picsum.photos fastly.picsum.photos",
+      "child-src 'self' www.youtube.com w.soundcloud.com static.addtoany.com",
+      "frame-src 'self'",
+    ];
+    $csp = "content-security-policy: " . implode('; ', $policies) . ";";
     break;
 
   case 'complete' :
@@ -91,6 +192,9 @@ content-security-policy: default-src 'self'; font-src 'self' d2rluhlsrx2f7f.clou
 
 if ($csp) {
     header($csp);
+}
+if ($extra_header) {
+    header($extra_header);
 }
 
 include 'demo.php';

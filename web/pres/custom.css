@@ -15,3 +15,75 @@
 .inline-block{
  display: inline-block;
 }
+
+/* Speaker slide: circular portrait beside the text.
+   Matches the pattern used in the chasing-ghosts deck.
+
+   Sizes are in px on purpose. Reveal scales the whole 700px slide canvas as a
+   unit, so px here is canvas-relative and renders identically at any window
+   size. Viewport units (vh/vw) are NOT canvas-relative — they resolve against
+   the browser window before reveal's transform, so they grow on a large
+   display and push the slide past the canvas. */
+.reveal .f1-speaker {
+  display: flex;
+  align-items: center;
+  gap: 1.3em;
+  text-align: left;
+}
+
+.reveal .f1-speaker > img {
+  width: 300px;
+  height: 300px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex: none;
+  box-shadow: 0 0 0 6px rgba(255, 255, 255, .08);
+}
+
+.reveal .f1-speaker .who h3,
+.reveal .f1-speaker .who h4 {
+  margin: .12em 0;
+}
+
+/* Forum One lockup on the speaker slide. Sized in px for the same reason the
+   portrait is: reveal scales the canvas, so px is canvas-relative.
+
+   The job title above this reads "Technical Architect" rather than
+   "Technical Architect, Forum One" — with the logo directly beneath it, naming
+   the company twice makes the logo look decorative instead of doing the work. */
+.reveal .f1-speaker .who .f1-speaker-logo {
+  display: block;
+  width: 240px;
+  height: auto;
+  max-width: 100%;
+  margin: .5em 0 0;
+  border-radius: 0;
+  object-fit: contain;
+  box-shadow: none;
+}
+
+/* Leave the persistent corner brand mark clear of Reveal's navigation cluster,
+   including the extra movement from the first-use navigation hint. */
+.reveal .controls[data-controls-layout="bottom-right"] {
+  right: 80px;
+}
+
+/* Code blocks must never scroll horizontally — anything past the right edge is
+   invisible on a projector, with no scrollbar to hint it's there.
+
+   pre-wrap keeps the deliberate line breaks in the multi-line policy examples
+   while letting an over-long line wrap at a space. break-word is the fallback
+   for a single unbreakable token (a base64 hash), which wraps only when it
+   cannot fit on a line by itself.
+
+   The selectors below deliberately mirror the ones they override. The theme
+   sets `.reveal .code-wrapper code { white-space: pre }` and reveal sets a rule
+   on `.hljs`; matching their specificity means this file, which loads after
+   both, wins. A plain `.reveal pre code` is less specific and loses. */
+.reveal .code-wrapper code,
+.reveal .code-wrapper code.hljs,
+.reveal pre code {
+  white-space: pre-wrap;
+  overflow-wrap: break-word;
+  overflow-x: hidden;
+}

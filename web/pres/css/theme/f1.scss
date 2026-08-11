@@ -1,0 +1,124 @@
+/**
+ * Forum One theme for reveal.js.
+ *
+ * Based on the Forum One Brand Guidelines (July 2025 refresh):
+ *   Canvas  — Forum One Black #0F0F0F / White #FFFFFF
+ *   Type    — DM Sans (loaded via Google Fonts <link> in index.html)
+ *   Accents — Momentum Red #FA3030, Catalyst Purple #7E33FF,
+ *             Steadfast Blue #133BFF, Beacon Yellow #FAD22A
+ *
+ * Dark canvas variant.
+ */
+
+// Load utils
+@use 'sass:color';
+@use 'template/mixins' as mixins;
+
+// Forum One palette
+$f1-black:    #0f0f0f;
+$f1-white:    #ffffff;
+$red:         #fa3030; // Momentum Red
+$red-200:     #fb5959;
+$purple:      #7e33ff; // Catalyst Purple
+$purple-400:  #985cff;
+$blue:        #133bff; // Steadfast Blue
+$blue-400:    #4262ff;
+$yellow:      #fad22a; // Beacon Yellow
+
+// Inject theme variables (with Forum One overrides)
+@use 'template/settings' with (
+	$background-color: $f1-black,
+
+	$main-font: "'DM Sans', system-ui, -apple-system, Helvetica, Arial, sans-serif",
+	$main-font-size: 40px,
+	$main-color: $f1-white,
+
+	$heading-color: $f1-white,
+	$heading-font: "'DM Sans', system-ui, -apple-system, Helvetica, Arial, sans-serif",
+	$heading-font-weight: 800,
+	$heading-text-transform: none,
+	$heading-letter-spacing: -0.01em,
+	$heading-text-shadow: none,
+
+	$heading1-size: 2.6em,
+	$heading2-size: 1.7em,
+	$heading3-size: 1.25em,
+	$heading4-size: 1em,
+
+	$link-color: $red,
+	$link-color-hover: $red-200,
+	$selection-color: $f1-white,
+	$selection-background-color: $purple
+);
+
+// Inject the theme template
+@use 'template/theme';
+
+// --- Forum One specific styling ---------------------------------------------
+
+.reveal {
+	// Slightly tighter, more "DM Sans" body rhythm.
+	font-weight: 400;
+}
+
+// Momentum Red accent on second/third level headings for brand pop while
+// keeping h1/h2 white per the brand's high-contrast guidance.
+.reveal h3,
+.reveal h4 {
+	color: $red;
+}
+
+// Code blocks: keep them legible on the black canvas.
+.reveal pre {
+	box-shadow: 0 2px 18px rgba(0, 0, 0, 0.6);
+	border-left: 4px solid $purple;
+}
+.reveal pre code {
+	background: #161616;
+	border-radius: 4px;
+	max-height: 600px;
+}
+.reveal code {
+	color: $yellow; // inline code in Beacon Yellow for contrast
+}
+
+// Links: blue underline-on-hover, brand-consistent.
+.reveal a {
+	transition: color 0.15s ease;
+}
+
+// Title slide branding: logo + tagline helpers used in index.html.
+.reveal .f1-brandmark {
+	display: block;
+	margin: 0 auto 0.4em;
+	height: 120px;
+	width: auto;
+}
+.reveal .f1-tagline {
+	color: $f1-white;
+	font-weight: 800;
+	letter-spacing: 0.18em;
+	text-transform: uppercase;
+	font-size: 0.5em;
+	opacity: 0.85;
+}
+
+// Progress bar / controls in brand red.
+.reveal .progress {
+	color: $red;
+}
+.reveal .controls {
+	color: $red;
+}
+
+// Persistent small brand mark in the corner of every slide.
+.reveal .f1-corner-logo {
+	position: fixed;
+	bottom: 18px;
+	right: 22px;
+	height: 34px;
+	width: auto;
+	opacity: 0.8;
+	z-index: 30;
+	pointer-events: none;
+}

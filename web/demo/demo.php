@@ -70,11 +70,26 @@
           <li class="navbar-item">
             <a class="navbar-link" href="?csp=nonce">Nonces</a>
           </li>
+          <li class="navbar-item">
+            <a class="navbar-link" href="?csp=strict-dynamic">strict-dynamic</a>
+          </li>
+          <li class="navbar-item">
+            <a class="navbar-link" href="?csp=report-to">report-to</a>
+          </li>
+          <li class="navbar-item">
+            <a class="navbar-link" href="?csp=child-src">child-src</a>
+          </li>
+          <li class="navbar-item">
+            <a class="navbar-link" href="?csp=fallback-trap">fallback trap</a>
+          </li>
           <!--
           <li class="navbar-item">
             <a class="navbar-link" href="?csp=complete">Complete</a>
           </li>
           -->
+          <li class="navbar-item">
+            <a class="navbar-link" href="/demo/advanced.php?csp=none">Advanced &rarr;</a>
+          </li>
           <li class="navbar-item">
             <a class="navbar-link" href="/">Back to Drupal</a>
           </li>
@@ -99,10 +114,24 @@
 
     <h3>Current Content Security Policy:</h3>
   <?php if ($csp) { ?>
-    <p><code class="code-block"><?php echo $csp ?></code></p>
+    <p><code class="code-block"><?php echo htmlspecialchars($csp); ?></code></p>
   <?php } else { ?>
     <p>Not using any Content Security Policy</p>
     <?php } ?>
+<?php if ($csp_option === 'strict-dynamic') { ?>
+    <p>Note the shape of this policy. <code>script-src</code> is short and names
+      no hosts at all &mdash; that's what <code>'strict-dynamic'</code> buys you.
+      <code>default-src</code> is still carrying the entire host list for fonts,
+      images, styles and frames, because <code>'strict-dynamic'</code> does
+      nothing for any of them.</p>
+    <p>web.dev's published recipe is <code>script-src</code>,
+      <code>object-src</code> and <code>base-uri</code> only. A policy with no
+      <code>default-src</code> leaves every directive it doesn't name completely
+      unrestricted, so that version polices scripts and lets everything else
+      through. The <code>default-src</code> here is the same host list the
+      <a href="?csp=nonce">nonce</a> case uses, so the two are directly
+      comparable.</p>
+<?php } ?>
     <hr />
 
     <div class="row">
@@ -121,10 +150,17 @@
       ?> src="https://static.addtoany.com/menu/page.js" ></script>
       <!-- AddToAny END -->
       <br />
-      <p>Share buttons using AddToAny. These are loaded by javascript, and will
-        break unless the javascript domain is allowed. They might degrade if not
-        handled properly.</p>
-      <p>In the hash example, this just completely breaks. They recommend using a nonce <a href="https://demo.addtoany.com/csp" target="_blank">https://demo.addtoany.com/csp</a> (I can't get this to work with a nonce).</p>
+      <p>Share buttons using AddToAny. These are loaded by JavaScript, and break
+        unless the script's domain is allowed.</p>
+      <p>They work under every policy here except <a href="?csp=enforced">Enforced</a>,
+        which allow-lists no external hosts at all. The <a href="?csp=hash">hash</a>
+        policy covers AddToAny's inline scripts with four SHA-256 hashes, which
+        have to be regenerated whenever the vendor changes that code &mdash; the
+        maintenance burden that pushes people toward nonces. The
+        <a href="?csp=nonce">nonce</a> and <a href="?csp=strict-dynamic">strict-dynamic</a>
+        policies instead put a nonce on the loader tag.</p>
+      <p>AddToAny publishes its own CSP guidance at
+        <a href="https://demo.addtoany.com/csp" target="_blank">demo.addtoany.com/csp</a>.</p>
 
     </div>
     <hr />
@@ -221,15 +257,11 @@
     <div class="row">
       <div class="one-half column">
         <h2>External Images</h2>
-        <p>This plain img elemeny was loaded from an external domain "pbs.twimg.com".</p>
+        <p>This plain img element is loaded from an external domain ("picsum.photos"). Under an enforced CSP it is blocked unless that domain is in <code>img-src</code> (or <code>default-src</code>).</p>
       </div>
       <div class="one-half column">
         <div>
-          <img <?php
-          if ($nonce) {
-            echo $nonce_attribute;
-          }
-          ?>src="https://pbs.twimg.com/media/EiYLR_YXsAATYo3?format=jpg&name=small" width="416" height="312" alt="This is alt text" title="This is title text"/>
+          <img src="https://picsum.photos/416/312" width="416" height="312" alt="Random external demo image" title="Loaded from picsum.photos"/>
         </div>
 
       </div>
@@ -247,16 +279,15 @@
   <div class="row">
     <div class="one-half column">
       <p>
-        An image that is set as a backgound-image of
-        a div by a style attribute. Hashes behave differently between Chrome
-        and Firefox. This image will be blocked in Chrome unless it is
-        allowed by including the "unsafe-inline" option. It will display in
-        Firefox when using the hash in the CSP. A nonce cannot be used here.
-        Blocking is actually the correct behavior according to the spec.
+        An image set as the <code>background-image</code> of a div via an inline
+        <code>style</code> attribute. A plain hash or nonce does <strong>not</strong>
+        cover style <em>attributes</em> — so under an enforced CSP this is blocked
+        unless you allow <code>'unsafe-inline'</code>, or pair a matching hash with
+        <code>'unsafe-hashes'</code> (CSP Level 3). A nonce cannot apply to an
+        attribute. Blocking by default is the correct, spec'd behavior.
       </p>
-      <p>Oddly, Chrome will still suggest an sha256 hash, even if it is already in use.</p>
-      <p>This is what we do currently in Gesso.
-      </p>
+      <p>The robust fix is to move the rule into a stylesheet or a nonce'd
+        <code>&lt;style&gt;</code> element instead of an inline attribute.</p>
     </div>
     <div class="one-half column">
       <div <?php
@@ -322,6 +353,25 @@
         <h2>Embedded Media</h2>
       </div>
     </div>
+
+<?php if ($csp_option === 'child-src' || $csp_option === 'fallback-trap') { ?>
+    <div class="row">
+      <div class="column">
+        <h3>The fallback trap</h3>
+        <p>Both of these policies list <code>www.youtube.com</code> and
+          <code>w.soundcloud.com</code> in <code>child-src</code>. The only
+          difference is that the trap version also defines
+          <code>frame-src 'self'</code>, which omits them.</p>
+        <p>Because <code>frame-src</code> is present, the browser never consults
+          <code>child-src</code> for frames. Those two entries are dead and the
+          embeds below are blocked &mdash; and nothing in the console tells you
+          that the <code>child-src</code> entries stopped applying.</p>
+        <p>Compare: <a href="?csp=child-src">child-src only</a> (embeds load)
+          vs. <a href="?csp=fallback-trap">child-src + frame-src</a> (embeds
+          blocked).</p>
+      </div>
+    </div>
+<?php } ?>
 
     <div class="row">
       <div class="one-half column">
