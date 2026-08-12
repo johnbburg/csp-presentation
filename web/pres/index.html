@@ -359,7 +359,9 @@ frame-ancestors 'self';</code></pre>
           <aside class="notes">
             <p>You might be thinking at this point, CSP is kind of complex, and easy to mess up, and you are completely correct.</p>
             <p>Fortunately we have report only mode. When this is on, instead of blocking sources, it will pop up with an error in the console.</p>
-            <p>You also have an option to send these reports to the Drupal log... but I would advise against that on a high traffic site... This can cause many many POST requests hitting your back-end, which can hurt performance, to put it mildly.</p>
+            <p>You also have an option to send these off to a service to store.</p>
+            <p>The Drupal module used to have a feature, where you could send these to the database log, but I think
+              people kept  DDoS-ing themselves due to the many, POST requests that would send to the back-end.</p>
 
           </aside>
           </section>
@@ -529,7 +531,7 @@ frame-ancestors 'self';</code></pre>
               </ul>
             <aside class="notes">
               <p>Three worth knowing about.</p>
-              <p>The CSP module of course, though still uses the deprecated "report-uri" directive (that's where I mentioned you could DDOS yourself with POST requests). The Reporting API module is now used to define the report-to instead.</p>
+              <p>The CSP module of course, though still uses the deprecated "report-uri" directive. The Reporting API module is now used to define the report-to instead.</p>
               <p>Then the attach inline module, if you must use inline code, but that is discouraged.</p>
               <p>These are the same maintainer by the way. Geoff Appleby, who I want to give a big thanks to for supporting all this for the Drupal community.</p>
             </aside>
