@@ -32,8 +32,8 @@
 						<p style="font-size:.6em; opacity:.7">Use arrow keys to move slides</p>
 					<aside class="notes">
 					  <p>Welcome to Content Security Policy in Drupal.</p>
-            <p>This presentation is available at  www.drupal-csp.net/pres. And there is a lot more here, than just the slides as you will see. Maybe not everyone all at once, this is on my cheap hosting plan.</p>
-            <p>Quick  warning, I'm being a little ambitious with the amount information I'm trying to cover here, so I might move at a fast pace. We have some demos at the end, and I'd love to leave time for questions.</p>
+            <p>This presentation is available at www.drupal-csp.net/pres. And there is a lot more here than just the slides, as you will see. Maybe not everyone all at once, since this is on my cheap hosting plan.</p>
+            <p>Quick warning, I'm being a little ambitious with the amount of information I'm trying to cover here, so I might move at a fast pace. We have some demos at the end, and I'd love to leave time for questions.</p>
 					</aside>
 					</section>
 					<section class="bio">
@@ -46,11 +46,11 @@
 							</div>
 						</div>
             <aside class="notes">
-              <p>That's me, John Brandenburg, Technical Architect at Forum One. I've been a Forum One for 13 years now. When not working, I spend time with my family, and I enjoy painting little sci fi army men. </p>
+              <p>That's me, John Brandenburg, Technical Architect at Forum One. I've been at Forum One for 13 years now. When not working, I spend time with my family, and I enjoy painting little sci fi army men. </p>
 
                 <p>So I actually created this presentation in 2020, so that's like 30 years ago, right?
                 I did it internally at Forum One for our engineering team. Of course this was coming off of a deep dive I
-                did myself on a project to add CSP. I had intended to submit it for a conference sooner, but Life just
+                did myself on a project to add CSP. I had intended to submit it for a conference sooner, but life just
                 sort of got in the way.</p>
 
               <p>Now let's rewind a bit...</p>
@@ -61,9 +61,9 @@
 					<section><h2>Web Page Test</h2>
 						<img src="images/webpagetest.png">
 					<aside class="notes">
-            <p>This is what webpagetest.org looked in 2020. It's a performance tool first.</p>
-            <p>But, back in the day, they also provided a security scan as a side feature, run through Qualys. Which,
-              would give you a letter grade. I don't believe they do this anymore, but I haven't actually used their
+            <p>This is what webpagetest.org looked like in 2020. It's a performance tool first.</p>
+            <p>But, back in the day, they also provided a security scan as a side feature, run through Qualys,
+              which would give you a letter grade. I don't believe they do this anymore, but I haven't actually used their
               "Authenticated" scan lately either.</p>
 					</aside>
 					</section>
@@ -80,7 +80,7 @@
 							<img src="images/F.png">
 
 					<aside class="notes">
-					  <p>So I was quite surprised, when I entered a number of sites maintained by myself, and my colleagues, to see the abysmal security ratings we were getting.</p>
+					  <p>So I was quite surprised, when I entered a number of sites maintained by myself and my colleagues, to see the abysmal security ratings we were getting.</p>
 					  <p>But the funny thing was, you could easily bring an F or a D score to an A, just by adding two http headers.</p>
 					</aside>
 					</section>
@@ -93,8 +93,8 @@
 
             <aside class="notes">
               <p>If you've ever dealt with a CISA scan report, you might already be intimately familiar with these.</p>
-              <p> Strict transport Security - or called by the "retronym" "HSTS" for short, just tells browsers that they should always connect to a site via https going forward, to avoid any accidental slips back over to regular http</p>
-              <p>And content Security policy, which is mainly what we are here to talk about, allows you to control what assets are served from your site</p>
+              <p>Strict Transport Security — or, by its retronym, "HSTS," for short — just tells browsers that they should always connect to a site via https going forward, to avoid any accidental slips back over to regular http.</p>
+              <p>And Content Security Policy, which is mainly what we are here to talk about, allows you to control what assets are served from your site.</p>
 
             </aside>
           </section>
@@ -108,7 +108,7 @@
 
 					<aside class="notes">
 					  <p>Google's own search page scored badly here too (at the time).</p>
-					  <p>The point is that a grade isn't a moral judgment — it depends what the site actually does. Mail handles real user data and scores much better. So the question to ask is what your site is holding, not what letter you got.</p>
+					  <p>The point is that a grade isn't a moral judgment — it depends on what the site actually does. Mail handles real user data and scores much better. So the question to ask is what your site is holding, not what letter you got.</p>
           </aside>
 					</section>
 
@@ -123,10 +123,10 @@
 
           <section>
             <h2>What are HTTP Headers?</h2>
-            <p>Litle bits of information about the response you received from the server.</p>
+            <p>Little bits of information about the response you received from the server.</p>
             <p>How do you see them?</p>
             <aside class="notes">
-              <p>They are litle bits of information about the response you received from the server.</p>
+              <p>They are little bits of information about the response you received from the server.</p>
               <p>To view them...</p>
             </aside>
           </section>
@@ -159,11 +159,11 @@ content-type: text/html
 						<p>A response header that tells the browser to always connect to that domain over HTTPS.</p>
 						<pre><code class="http">strict-transport-security:
   max-age=31536000; includeSubDomains; preload</code></pre>
-            <p>use <a href="https://hstspreload.org/">https://hstspreload.org/</a> for validation and to register  for preloading.</p>
+            <p>Use <a href="https://hstspreload.org/">https://hstspreload.org/</a> for validation and to register for preloading.</p>
 					<aside class="notes">
-            <p>So what is HSTS? I'll keep  this short, since you here to learn about CSP. But since HSTS was the other half  of getting to an A grade, I'm covering it.</p>
+            <p>So what is HSTS? I'll keep this short, since you're here to learn about CSP. But since HSTS was the other half of getting to an A grade, I'm covering it.</p>
 					  <p>This tells the browser never to use plain http for this domain again (or for as long as the max-age is set).</p>
-            <p>Some other gotchyas though</p>
+            <p>Some other gotchas, though.</p>
             <p>It's improper to include this in a regular non-https response, even if you are redirecting to https</p>
             <p>You shouldn't combine redirects for non-www and https. Redirect to https first, then issue a second redirect for www.</p>
           </aside>
@@ -171,12 +171,12 @@ content-type: text/html
 					<section>
 						<h3>How can I set up HSTS?</h3>
 						<p>In Drupal, the <a target="_blank" href="https://www.drupal.org/project/seckit">Security Kit</a> module can do it. You can also set the header directly in PHP, or (better) at the web server / CDN layer.</p>
-            <p>Avoid slip when adding redirects</p>
+            <p>Avoid slip-ups when adding redirects</p>
 					<aside class="notes">
             <p>How to set it up.</p>
 					  <p>Preference order is web server or CDN first, then a module (Security Kit).</p>
 					  <p>It's a static header that never changes, so there's no real reason for PHP to be generating it on every request.</p>
-            <p>Really the biggest problem you run into with it, is you might add a redirect somewhere in say your htaccess, and forget to include the HSTS as a part of that</p>
+            <p>Really, the biggest problem you run into with it is you might add a redirect somewhere in, say, your .htaccess file, and forget to include the HSTS as a part of that.</p>
             <p>But don't worry, CISA will remind you in a month or so...</p>
 					</aside>
 					</section>
@@ -217,21 +217,21 @@ content-type: text/html
 					<aside class="notes">
 					  <p>Move from what it is to why anybody bothers.</p>
 					  <p>One example is enough here — I don't want to turn this into a scare session.</p>
-            <p>Basically, If someone successfully injects some code into your site, they might be able to exfiltrate user data. So PII, Credit Card info, admin session tokens.</p>
+            <p>Basically, if someone successfully injects some code into your site, they might be able to exfiltrate user data. So PII, Credit Card info, admin session tokens.</p>
 					</aside>
 					</section>
 
 					<section><h3>British Airways breach (2018)</h3>
 						<ul>
 							<li>~380,000 card payments skimmed by injected JavaScript (Magecart).</li>
-							<li>Initially fined &pound;183m GDPR  &mdash; <strong>reduced to &pound;20m in 2020</strong>.</li>
+							<li>Initially fined &pound;183m under GDPR &mdash; <strong>reduced to &pound;20m in 2020</strong>.</li>
 						</ul>
             <p>A restrictive <code>connect-src</code> could have blocked the POSTs to the attacker's domain.</p>
             <p>Hacking is automated now &mdash; someone may just want to install a cryptominer. No site is too small.</p>
 					<aside class="notes">
 
             <p>This is the example I used in the original version of this presentation.</p>
-            <p>British airways, about  380k skimmed payments, resulting in significant fines.</p>
+            <p>British Airways, about 380k skimmed payments, resulting in significant fines.</p>
             <p>But there have been more since, and it just seems that "Supply Chain" vulnerabilities are becoming more and more frequent.</p>
             <p>Agentic AIs are pretty good at finding and exploiting vulnerabilities.</p>
             <p>CSP is one of the strongest defense-in-depth controls against XSS and supply-chain script injection: even after malicious code lands on the page, the policy can stop it from executing or sending data away.</p>
@@ -277,7 +277,7 @@ content-type: text/html
             <p style="font-size:.6em">For details, see the <a href="https://content-security-policy.com/" target="_blank">CSP Quick Reference Guide</a> and <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Content-Security-Policy" target="_blank">MDN</a>.</p>
 
           <aside class="notes">
-            <p>A CSP is broken up into various "directives" that governs a type  of resource.</p>
+            <p>A CSP is broken up into various "directives" that govern a type of resource.</p>
             <p>There are quite a few. No need to memorize these.</p>
           </aside>
           </section>
@@ -339,8 +339,8 @@ frame-ancestors 'self';</code></pre>
             <p><code>script-src</code> does not govern them.</p>
             <pre><code class="http">object-src 'none';</code></pre>
           <aside class="notes">
-            <p>Flash may be gone, but this directive still lives on. A same-origin HTML or SVG upload is still a realistic way for somebody to put an executable document on your origin.
-            <p>object-src falls back  to default-src</p>
+            <p>Flash may be gone, but this directive still lives on. A same-origin HTML or SVG upload is still a realistic way for somebody to put an executable document on your origin.</p>
+            <p>object-src falls back to default-src.</p>
           </aside>
           </section>
 
@@ -361,7 +361,7 @@ frame-ancestors 'self';</code></pre>
             <p>Fortunately we have report only mode. When this is on, instead of blocking sources, it will pop up with an error in the console.</p>
             <p>You also have an option to send these off to a service to store.</p>
             <p>The Drupal module used to have a feature, where you could send these to the database log, but I think
-              people kept  DDoS-ing themselves due to the many, POST requests that would send to the back-end.</p>
+              people kept DDoS-ing themselves due to the sheer number of POST requests that would get sent to the back-end.</p>
 
           </aside>
           </section>
@@ -390,7 +390,7 @@ frame-ancestors 'self';</code></pre>
           <section>
             <h3><code>'unsafe-inline'</code></h3>
             <pre><code class="http">content-security-policy: script-src 'self' 'unsafe-inline';</code></pre>
-            <p>Allows inline scripts/styles. i.e. anything inside a <code>&#x3C;script&#x3E;</code> tag, or "onclick" handler.</p>
+            <p>Allows inline scripts/styles &mdash; i.e., anything inside a <code>&#x3C;script&#x3E;</code> tag or an "onclick" handler.</p>
             <p>Weak &mdash; but still better than no CSP at all as a starting point.</p>
           <aside class="notes">
             <p>This is where most people start, and it's a reasonable first step, since there is a lot of legacy code added inline.</p>
@@ -492,7 +492,7 @@ frame-ancestors 'self';</code></pre>
               <h3>How do you set a CSP?</h3>
               <p>By hand is unsustainable. A real CSP needs to be dynamic (fresh nonces, per-page sources). That's the challenge &mdash; and why you want a module.</p>
             <aside class="notes">
-              <p>A CSP really needs to be generated dynamically per page. I've seen some of my WordPress friends  struggle in this area, because they don't have the structured frameworks like Drupal has, to do this effectively.</p>
+              <p>A CSP really needs to be generated dynamically per page. I've seen some of my WordPress friends struggle in this area, because they don't have the structured frameworks that Drupal has, to do this effectively.</p>
               <p>Perhaps that's changed, I'm not a WordPress guy, so I'm not up on their latest news.</p>
             </aside>
             </section>
@@ -511,12 +511,12 @@ frame-ancestors 'self';</code></pre>
               <p>Prefer it over Security Kit for CSP specifically.</p>
             <aside class="notes">
               <p>Use the CSP module.</p>
-              <p>You could use the Security Kit module, but it's nowhere near as dynamic as the dedicated CSP  module.</p>
-              <p>The CSP module was smart enough to handle the issues back  in the days of  CKEditor 4,  which required that unsafe-inline directive.</p>
-              <p>Also, think about the need to adjust CSP on the fly when loading content from ajax </p>
+              <p>You could use the Security Kit module, but it's nowhere near as dynamic as the dedicated CSP module.</p>
+              <p>The CSP module was smart enough to handle the issues back in the days of CKEditor 4, which required the unsafe-inline directive.</p>
+              <p>Also, think about the need to adjust CSP on the fly when loading content from ajax.</p>
               <p>(when can we stop using that misnomer and call it AJAJ?).</p>
 
-              <p>Open CSP  settings page and do a quick tour.</p>
+              <p>Open the CSP settings page and do a quick tour.</p>
               <p><a href="https://www.drupal-csp.net/admin/config/system/csp" target="_blank" rel="noopener noreferrer">Droplet</a></p>
               <p><a href="https://csp.ddev.site/admin/config/system/csp" target="_blank" rel="noopener noreferrer">DDEV</a></p>
 
@@ -531,7 +531,7 @@ frame-ancestors 'self';</code></pre>
               </ul>
             <aside class="notes">
               <p>Three worth knowing about.</p>
-              <p>The CSP module of course, though still uses the deprecated "report-uri" directive. The Reporting API module is now used to define the report-to instead.</p>
+              <p>The CSP module, of course, still uses the deprecated "report-uri" directive, though. The Reporting API module is now used to define the report-to instead.</p>
               <p>Then the attach inline module, if you must use inline code, but that is discouraged.</p>
               <p>These are the same maintainer by the way. Geoff Appleby, who I want to give a big thanks to for supporting all this for the Drupal community.</p>
             </aside>
@@ -553,7 +553,7 @@ frame-ancestors 'self';</code></pre>
             <aside class="notes">
               <p>Your header is not your config.</p>
               <p>The module assembles the header from several sources, and only one of them is the config you exported.</p>
-              <p>It also  pulls from the libraries API, What is "#attached" .</p>
+              <p>It also pulls from the Libraries API. (What is "#attached"?)</p>
             </aside>
             </section>
             <section>
@@ -563,7 +563,7 @@ $ curl -Is https://www.drupal-csp.net/ | grep -i content-security-policy
 content-security-policy: default-src &#x27;self&#x27;; font-src &#x27;self&#x27; fonts.googleapis.com fonts.gstatic.com; frame-src &#x27;self&#x27; www.youtube.com w.soundcloud.com; img-src &#x27;self&#x27; data: pbs.twimg.com static.addtoany.com; script-src &#x27;self&#x27; static.addtoany.com; style-src &#x27;self&#x27; fonts.googleapis.com fonts.gstatic.com static.addtoany.com; frame-ancestors &#x27;self&#x27;
               </code></pre>
             <aside class="notes">
-              <p>So to really know what a CSP holds, Read the header as it is on the page.</p>
+              <p>So to really know what a CSP holds, read the header as it is on the page.</p>
             </aside>
             </section>
             <section>
@@ -571,7 +571,7 @@ content-security-policy: default-src &#x27;self&#x27;; font-src &#x27;self&#x27;
               <p>Both are enforced. The effective policy is their <strong>intersection</strong>, not their union &mdash; a resource must be allowed by every policy in force.</p>
               <p style="font-size:.8em">*Can happen if your CDN and Drupal both set a CSP.</p>
             <aside class="notes">
-              <p>If you end up with multiple policies, Intersection, not union. I see this when a Client's IT team sets it in the WAF, but  you also have Drupal Dynamically generating one as well.</p>
+              <p>If you end up with multiple policies, it's intersection, not union. I see this when a client's IT team sets it in the WAF, but you also have Drupal dynamically generating one as well.</p>
               <p>The browser enforces all of them, independently.</p>
             </aside>
             </section>
@@ -607,9 +607,9 @@ content-security-policy: default-src &#x27;self&#x27;; font-src &#x27;self&#x27;
   }
 
 }</code></pre>
-              <p>See my <a href="https://github.com/forumone/csp_starter/blob/main/src/EventSubscriber/CspStarterSubscriber.php" rel="noopener noreferer" target="_blank">CSP Starter Example Module on GitHub</a>.</p>
+              <p>See my <a href="https://github.com/forumone/csp_starter/blob/main/src/EventSubscriber/CspStarterSubscriber.php" rel="noopener noreferrer" target="_blank">CSP Starter Example Module on GitHub</a>.</p>
             <aside class="notes">
-              <p>I'm pushing to define Additional CSP  rules like this, in an event subscriber where you can add inline code comments explaining why a specific resource is used.</p>
+              <p>I'm pushing to define additional CSP rules like this, in an event subscriber where you can add inline code comments explaining why a specific resource is used.</p>
             </aside>
             </section>
             <section>
@@ -618,7 +618,7 @@ content-security-policy: default-src &#x27;self&#x27;; font-src &#x27;self&#x27;
               <p>The same host added here is in version control, next to the reason, reviewed in a pull request, and deployed with the code that needs it.</p>
               <p style="font-size:.78em">It also can't drift. There's no active-config copy to diverge from <code>config/sync</code>.</p>
             <aside class="notes">
-              <p>For me, the comment is what's important.<p>
+              <p>For me, the comment is what's important.</p>
               <p>A host added through the admin UI is a string in a YAML file with no explanation attached. Six months later nobody knows what it's for, so nobody removes it — and the list only ever grows.</p>
               <p>Put it here instead, and it's in version control, next to the reason.</p>
             </aside>
@@ -690,7 +690,7 @@ $element['#attached']['csp_hash']['script-src-elem'] = [
             <p style="font-size:.78em"><strong>For now:</strong> manually add every destination loaded by your GTM container to the appropriate CSP directive.</p>
             <p style="font-size:.55em; opacity:.7"><a href="https://www.drupal.org/project/google_tag/issues/3203811" target="_blank">Google Tag issue #3203811</a> &mdash; the patch needs testing; hopefully a release soon.</p>
           <aside class="notes">
-            <p>So for now, you are just going to need to manually add extra scripts from Google tag to your CSP. </p>
+            <p>So for now, you are just going to need to manually add extra scripts from Google Tag to your CSP.</p>
             <p>There is an issue to utilize that nonce-safe approach described by Google, but that is still an active issue. See the link here.</p>
           </aside>
           </section>
@@ -714,13 +714,13 @@ $element['#attached']['csp_hash']['script-src-elem'] = [
             <p><code>drupal/csp</code> + <code>drupal/reporting</code><br>&rarr; <code>report-to</code> + <code>report-uri</code></p>
             <br />
             <p style="font-size:.75em"><code>report-uri</code> is deprecated</p>
-            <p style="font-size:.75em">The Reporting API module ia the new standard.</p>
+            <p style="font-size:.75em">The Reporting API module is the new standard.</p>
             <p style="font-size:.52em; opacity:.65"><a href="https://www.drupal.org/project/csp/issues/3598732" target="_blank">CSP issue #3598732</a> &middot; <a href="https://www.drupal.org/project/reporting" target="_blank">Reporting API module</a></p>
           <aside class="notes">
-            <p>The report-uri directive, which ships with the CSP module is deprecated. It still works. The recommendation is to send both - for compatibility - for now.</p>
+            <p>The report-uri directive, which ships with the CSP module, is deprecated. It still works. The recommendation is to send both - for compatibility - for now.</p>
             <p>But now we should be using the Reporting-Endpoints module IF you are trying to send the logs of CSP violations to some service you set up.</p>
             <p>Or you could leave it alone, and just wait for complaints? Or manually check?</p>
-            <p>To be frank, I haven't used any of these reporting endpoint services before, but not that I'm opposed to them.</p>
+            <p>To be frank, I haven't used any of these reporting endpoint services before &mdash; not that I'm opposed to them.</p>
           </aside>
           </section>
           <section>
@@ -814,7 +814,7 @@ content-security-policy:
 				<aside class="notes">
 				  <p>So questions.</p>
 
-          <p>We also can spend some moretime looking at the demo.</p>
+          <p>We also can spend some more time looking at the demo.</p>
 
 				  <p>If nothing comes straight away, the form-action demo is a good one to go back to — people usually have questions once they've seen it.</p>
 				</aside>
