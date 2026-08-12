@@ -370,6 +370,20 @@ frame-ancestors 'self';</code></pre>
           <aside class="notes">
             <p>Key features in CSP.</p>
           </aside>
+
+          </section>
+          <section><h2>Source-list keywords</h2>
+            <ul>
+              <li>'none'</li>
+              <li>'self'</li>
+              <li>'unsafe-inline'</li>
+              <li>'unsafe-eval'</li>
+              <li>'unsafe-hashes'</li>
+            </ul>
+            <aside class="notes">
+              <p>Reference slide — read through it rather than dwelling on it.</p>
+              <p>The distinction worth making is that these are keywords you put inside a directive, not directives themselves.</p>
+            </aside>
           </section>
           <section>
             <h3><code>'unsafe-inline'</code></h3>
@@ -380,6 +394,16 @@ frame-ancestors 'self';</code></pre>
             <p>This is where most people start, and it's a reasonable first step, since there is a lot of legacy code added inline.</p>
             <p>But it's very permissive, and ultimately should be avoided where possible.</p>
           </aside>
+          </section>
+
+          <section>If you ever did this&hellip;
+            <pre>
+					    <code class="html">&#x3C;div style=&#x22;background-image: url(&#x27;...&#x27;)&#x22;&#x3E;</code>
+            </pre>
+            <p>CSP blocks that inline <code>style</code> attribute unless you allow <code>'unsafe-inline'</code> (or a matching hash with <code>'unsafe-hashes'</code>).</p>
+            <aside class="notes">
+              <p>unsafe inline would also be needed for things like this. Or use a hash, which we are about to talk about, but there is gotcha with hashes.</p>
+            </aside>
           </section>
 
           <section>
@@ -461,39 +485,6 @@ frame-ancestors 'self';</code></pre>
           </section>
         </section>
 
-
-        <section>
-          <section><h2>Source-list keywords</h2>
-          <ul>
-            <li>'none'</li>
-            <li>'self'</li>
-            <li>'unsafe-inline'</li>
-            <li>'unsafe-eval'</li>
-            <li>'unsafe-hashes'</li>
-          </ul>
-          <aside class="notes">
-            <p>Reference slide — read through it rather than dwelling on it.</p>
-            <p>The distinction worth making is that these are keywords you put inside a directive, not directives themselves.</p>
-          </aside>
-          </section>
-
-
-					<section>If you ever did this&hellip;
-						<pre>
-					    <code class="html">&#x3C;div style=&#x22;background-image: url(&#x27;...&#x27;)&#x22;&#x3E;</code>
-            </pre>
-            <p>CSP blocks that inline <code>style</code> attribute unless you allow <code>'unsafe-inline'</code> (or a matching hash with <code>'unsafe-hashes'</code>).</p>
-					<aside class="notes">
-					  <p>This comes back to the hash gotcha.</p>
-					  <p>Everybody in the room has written this at some point.</p>
-					</aside>
-					</section>
-        </section>
-
-
-
-
-
           <section>
             <section>
               <h3>How do you set a CSP?</h3>
@@ -522,6 +513,11 @@ frame-ancestors 'self';</code></pre>
               <p>The CSP module was smart enough to handle the issues back  in the days of  CKEditor 4,  which required that unsafe-inline directive.</p>
               <p>Also, think about the need to adjust CSP on the fly when loading content from ajax </p>
               <p>(when can we stop using that misnomer and call it AJAJ?).</p>
+
+              <p>Open CSP  settings page and do a quick tour.</p>
+              <p><a href="https://www.drupal-csp.net/admin/config/system/csp" target="_blank" rel="noopener noreferrer">Droplet</a></p>
+              <p><a href="https://csp.ddev.site/admin/config/system/csp" target="_blank" rel="noopener noreferrer">DDEV</a></p>
+
             </aside>
             </section>
             <section>
@@ -815,7 +811,10 @@ content-security-policy:
         <section><h1>Questions <div>&amp;</div> Discussion</h1>
 				<p>How many "ums"?</p>
 				<aside class="notes">
-				  <p>Open it up.</p>
+				  <p>So questions.</p>
+
+          <p>We also can spend some moretime looking at the demo.</p>
+
 				  <p>If nothing comes straight away, the form-action demo is a good one to go back to — people usually have questions once they've seen it.</p>
 				</aside>
 				</section>
