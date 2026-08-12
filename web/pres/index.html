@@ -630,9 +630,9 @@ content-security-policy: default-src &#x27;self&#x27;; font-src &#x27;self&#x27;
               <p>The same host added here is in version control, next to the reason, reviewed in a pull request, and deployed with the code that needs it.</p>
               <p style="font-size:.78em">It also can't drift. There's no active-config copy to diverge from <code>config/sync</code>.</p>
             <aside class="notes">
-              <p>This is the actual argument.</p>
+              <p>For me, the comment is what's important.<p>
               <p>A host added through the admin UI is a string in a YAML file with no explanation attached. Six months later nobody knows what it's for, so nobody removes it — and the list only ever grows.</p>
-              <p>Put it here instead and it's in version control, next to the reason, and it went through review like anything else.</p>
+              <p>Put it here instead, and it's in version control, next to the reason.</p>
             </aside>
             </section>
             <section>
@@ -647,6 +647,7 @@ content-security-policy: default-src &#x27;self&#x27;; font-src &#x27;self&#x27;
                 <li>Neither exists? Do nothing.</li>
               </ol>
             <aside class="notes">
+              <p>This mouthful of a method is the safest to use here. Remember that fall back trap I talked about earlier?</p>
               <p>This avoids creating a narrower directive containing only the new source, which would accidentally block everything the fallback had allowed.</p>
             </aside>
             </section>
@@ -659,8 +660,7 @@ content-security-policy: default-src &#x27;self&#x27;; font-src &#x27;self&#x27;
               </ul>
               <p style="font-size:.68em; opacity:.85">Themes use <code>hook_csp_policy_alter()</code>. Modules should subscribe to <code>CspEvents::POLICY_ALTER</code>.</p>
             <aside class="notes">
-              <p>Use these only when you deliberately need behavior different from the fallback-aware default.</p>
-              <p>The event fires once for each enabled policy, so check isReportOnly when the two policies should differ.</p>
+              <p>These are the other methods available. But just use that safe one.</p>
             </aside>
             </section>
             <section>
@@ -674,8 +674,10 @@ $element['#attached']['csp_hash']['script-src-elem'] = [
               <p style="font-size:.75em">The source travels with the render element, so it's only in the policy on pages that actually use it &mdash; and it leaves the policy when the component does.</p>
               <p style="font-size:.68em; opacity:.85">This is also the module-native answer to "I have inline JS I can't remove," alongside Attach Inline.</p>
             <aside class="notes">
+              <p>or attach it.</p>
               <p>This scopes things better — the source is only in the policy on pages that actually use the component, and it leaves when the component does.</p>
               <p>It's also the module's own answer to inline JavaScript you can't remove.</p>
+
             </aside>
             </section>
           </section>
@@ -690,8 +692,9 @@ $element['#attached']['csp_hash']['script-src-elem'] = [
             </ul>
             <p style="font-size:.6em; opacity:.75"><a href="https://developers.google.com/tag-platform/security/guides/csp" target="_blank">Google: Use Tag Manager with a Content Security Policy</a></p>
           <aside class="notes">
-            <p>This is much clearer than Google's older guidance. It now separates the loader requirements from the extra destinations needed by GA4, Google Ads, Floodlight, Preview Mode, and other features.</p>
-            <p>Google's Custom JavaScript variables still require unsafe-eval, so avoid those under a strong policy.</p>
+            <p>Now there is a good chance you are using Google Tag Manager. But it presents problems for CSP. Because by its nature, it's loading external scripts.</p>
+            <p>Google updated their guidance recently, and it's much clearer than before. See that link below.</p>
+            <p>But it does require unsafe-eval, or needs to be patch.</p>
           </aside>
           </section>
           <section>
@@ -700,10 +703,8 @@ $element['#attached']['csp_hash']['script-src-elem'] = [
             <p style="font-size:.78em"><strong>For now:</strong> manually add every destination loaded by your GTM container to the appropriate CSP directive.</p>
             <p style="font-size:.55em; opacity:.7"><a href="https://www.drupal.org/project/google_tag/issues/3203811" target="_blank">Google Tag issue #3203811</a> &mdash; the patch needs testing; hopefully a release soon.</p>
           <aside class="notes">
-            <p>Google Tag uses a local external wrapper instead of Google's inline nonce snippet. The CSP module's library scanner sees that wrapper, but it cannot infer the Google script the wrapper inserts dynamically.</p>
-            <p>The released subscriber only adds google-analytics.com and googletagmanager.com to img-src and connect-src. It does not fully implement Google's current recommendation.</p>
-            <p>The open issue has a nonce-support patch for 2.0.9. It needs real-world testing; hopefully that leads to a new release soon.</p>
-            <p>Until then, inspect violation reports or Tag Assistant and manually add every script, frame, image, and connection destination used by the container.</p>
+            <p>So for now, you are just going to need to manually add extra scripts from Google tag to your CSP. There
+              is an issue to utilize that nonce-safe approach described in the link on thhe previous slide, but that is still an active issue.</p>
           </aside>
           </section>
           <section>
@@ -713,8 +714,7 @@ $element['#attached']['csp_hash']['script-src-elem'] = [
             <p>No PR. No deploy. No notice.</p>
             <p style="font-size:.8em">Google documents the required hosts now &mdash; but the container can still change underneath your policy.</p>
           <aside class="notes">
-            <p>On a recent project, a marketer added a Google Ads remarketing tag in GTM. It beaconed to ad.doubleclick.net and got blocked on connect-src. Nobody on the development team had changed the site.</p>
-            <p>Somebody outside the development team can change what your site loads, with no deploy and no notice. That is worth sitting with for a moment, especially in a government context.</p>
+            <p>Until then, you jsust need to stay on top of what's being added to GTM to avoid accidental CSP violations.</p>
           </aside>
           </section>
         </section>
@@ -723,29 +723,31 @@ $element['#attached']['csp_hash']['script-src-elem'] = [
           <section>
             <h3>CSP reporting in Drupal</h3>
             <p><code>drupal/csp</code> alone &rarr; <code>report-uri</code></p>
+            <br />
             <p><code>drupal/csp</code> + <code>drupal/reporting</code><br>&rarr; <code>report-to</code> + <code>report-uri</code></p>
-            <p style="font-size:.75em">The Reporting API module also emits the required <code>Reporting-Endpoints</code> header.</p>
+            <br />
+            <p style="font-size:.75em"><code>report-uri</code> is deprecated</p>
+            <p style="font-size:.75em">The Reporting API module ia the new standard.</p>
             <p style="font-size:.52em; opacity:.65"><a href="https://www.drupal.org/project/csp/issues/3598732" target="_blank">CSP issue #3598732</a> &middot; <a href="https://www.drupal.org/project/reporting" target="_blank">Reporting API module</a></p>
           <aside class="notes">
-            <p>Your memory was right: the CSP module's own URI and Report URI.com handlers emit report-uri.</p>
-            <p>The CSP module deliberately does not generate Reporting-Endpoints. Install the companion Reporting API module for local report-to handling; its CSP plugin supplies both reporting directives.</p>
-            <p>External URL support in the Reporting API module is still pending, so the older CSP handlers remain relevant for external collectors.</p>
+            <p>The report-uri directive which ships with the CSP module is deprecated. It still works. The recommendation is to send both - for compatibility - for now.</p>
+            <p>But now we should be using the Reporting-Endpoints module -- If you are trying to store the logs of CSP violations to some service you set up.</p>
+            <p>Or you could leave it alone, and just wait for complaints? Or manually check?</p>
+            <p>To be frank, I haven't used any of these reporting endpoint services before, but not that I'm opposed to.</p>
           </aside>
           </section>
           <section>
-            <h3>Send both reporting directives</h3>
+            <h3>report-to + report-uri</h3>
             <pre><code class="http">reporting-endpoints: csp-endpoint="https://example.com/report"
 content-security-policy:
   default-src 'self';
   report-to csp-endpoint;
   report-uri https://example.com/report;</code></pre>
-            <p><code>report-to</code> is current. <code>report-uri</code> is the compatibility fallback.</p>
-            <p style="font-size:.72em; opacity:.75">Treat reports as noisy diagnostics, not a complete security log.</p>
-          <aside class="notes">
-            <p>Report-to support is now broad, including Firefox 149, but Drupal's Reporting API integration emits both directives.</p>
-            <p>Browser extensions generate noise, reporting may be sampled, and report bodies can include sensitive URLs.</p>
-          </aside>
+            <aside class="notes">
+              <p>This is just to show what these look like together.</p>
+            </aside>
           </section>
+
         </section>
 
 
