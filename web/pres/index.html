@@ -345,18 +345,10 @@ frame-ancestors 'self';</code></pre>
           </section>
 
           <section>
-            <h2>CSP in Drupal</h2>
-            <p>There's a module for that.</p>
-          <aside class="notes">
-            <p>So how do you add a CSP in Drupal?</p>
-            <p>There's a module for that.</p>
-          </aside>
-          </section>
-          <section>
             <p>Always enable <code>default-src</code> as a fallback&hellip;</p>
             <p>&hellip;which is <em>not</em> on by default in the Drupal <a href="https://www.drupal.org/project/csp" target="_blank">CSP module</a>. Turn it on.</p>
           <aside class="notes">
-            <p>This is the first thing to do after you install the it is enable default-src in reportonly mode.</p>
+            <p>So just always enable default-src.</p>
           </aside>
           </section>
           <section>
@@ -512,7 +504,16 @@ frame-ancestors 'self';</code></pre>
             </aside>
             </section>
             <section>
-              <h3>Drupal</h3>
+              <h2>CSP in Drupal</h2>
+              <p>There's a module for that.</p>
+              <aside class="notes">
+                <p>So how do you add a CSP in Drupal?</p>
+                <p>There's a module for that.</p>
+              </aside>
+            </section>
+
+            <section>
+              <h3>The CSP Module</h3>
               <p>Use the <a target="_blank" href="https://www.drupal.org/project/csp">CSP module</a> &mdash; it builds the policy dynamically and integrates with Drupal's asset system.</p>
               <p>Prefer it over Security Kit for CSP specifically.</p>
             <aside class="notes">
