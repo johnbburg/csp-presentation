@@ -77,6 +77,12 @@
   },
   "extra": {
     "composer-exit-on-patch-failure": true,
+    "patches": {
+      "drupal/bg_image_formatter": {
+        "Drupal 11.4 compatibility: inject ImageDerivativeUtilities": "patches/bg_image_formatter-drupal-11.4-image-derivative-utilities.patch",
+        "Fix responsive cascade/fallback and route CSS through Attach Inline": "patches/responsive_bg_image_formatter-attach-inline-css.patch"
+      }
+    },
     "patchLevel": {
       "drupal/core": "-p2"
     },

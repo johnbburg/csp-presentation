@@ -1,0 +1,35 @@
+uuid: 6b4739ac-6ff8-4678-8c3d-a2e2f50ecc47
+langcode: en
+status: true
+dependencies:
+  config:
+    - image.style.large
+    - image.style.medium
+    - image.style.thumbnail
+  theme:
+    - olivero
+id: responsive_style
+label: 'Responsive style'
+image_style_mappings:
+  -
+    image_mapping_type: image_style
+    image_mapping: thumbnail
+    breakpoint_id: olivero.sm
+    multiplier: 1x
+  -
+    image_mapping_type: image_style
+    image_mapping: medium
+    breakpoint_id: olivero.md
+    multiplier: 1x
+  -
+    image_mapping_type: image_style
+    image_mapping: large
+    breakpoint_id: olivero.lg
+    multiplier: 1x
+  -
+    image_mapping_type: image_style
+    image_mapping: large
+    breakpoint_id: olivero.xl
+    multiplier: 1x
+breakpoint_group: olivero
+fallback_image_style: thumbnail

@@ -1,0 +1,46 @@
+diff --git a/src/Plugin/Field/FieldFormatter/BgImageFormatter.php b/src/Plugin/Field/FieldFormatter/BgImageFormatter.php
+--- a/src/Plugin/Field/FieldFormatter/BgImageFormatter.php
++++ b/src/Plugin/Field/FieldFormatter/BgImageFormatter.php
+@@ -14,6 +14,7 @@ use Drupal\Core\Render\Markup;
+ use Drupal\Core\Render\RendererInterface;
+ use Drupal\Core\Session\AccountInterface;
+ use Drupal\Core\Url;
++use Drupal\image\ImageDerivativeUtilities;
+ use Drupal\image\Plugin\Field\FieldFormatter\ImageFormatter;
+ use Symfony\Component\DependencyInjection\ContainerInterface;
+ use Symfony\Component\HttpFoundation\Request;
+@@ -66,6 +67,8 @@ class BgImageFormatter extends ImageFormatter {
+    *   The image style storage.
+    * @param \Drupal\Core\File\FileUrlGeneratorInterface $file_url_generator
+    *   The file URL generator service.
++   * @param \Drupal\image\ImageDerivativeUtilities $image_derivative_utilities
++   *   The image derivative utilities service.
+    * @param \Drupal\Core\Render\RendererInterface $renderer
+    *   The renderer service.
+    * @param \Symfony\Component\HttpFoundation\Request $request
+@@ -83,6 +86,7 @@ class BgImageFormatter extends ImageFormatter {
+     AccountInterface $current_user,
+     EntityStorageInterface $image_style_storage,
+     FileUrlGeneratorInterface $file_url_generator,
++    ImageDerivativeUtilities $image_derivative_utilities,
+     RendererInterface $renderer,
+     Request $request
+   ) {
+@@ -97,7 +101,8 @@ class BgImageFormatter extends ImageFormatter {
+       $third_party_settings,
+       $current_user,
+       $image_style_storage,
+-      $file_url_generator
++      $file_url_generator,
++      $image_derivative_utilities
+     );
+     $this->renderer = $renderer;
+     $this->request = $request;
+@@ -118,6 +123,7 @@ class BgImageFormatter extends ImageFormatter {
+         $container->get('current_user'),
+         $container->get('entity_type.manager')->getStorage('image_style'),
+         $container->get('file_url_generator'),
++        $container->get(ImageDerivativeUtilities::class),
+         $container->get('renderer'),
+         $container->get('request_stack')->getCurrentRequest()
+     );

@@ -1,0 +1,44 @@
+diff --git a/modules/responsive_bg_image_formatter/src/Plugin/Field/FieldFormatter/ResponsiveBgImageFormatter.php b/modules/responsive_bg_image_formatter/src/Plugin/Field/FieldFormatter/ResponsiveBgImageFormatter.php
+--- a/modules/responsive_bg_image_formatter/src/Plugin/Field/FieldFormatter/ResponsiveBgImageFormatter.php
++++ b/modules/responsive_bg_image_formatter/src/Plugin/Field/FieldFormatter/ResponsiveBgImageFormatter.php
+@@ -8,6 +8,7 @@ namespace Drupal\responsive_bg_image_formatter\Plugin\Field\FieldFormatter;
+ use Drupal\Core\Field\FieldItemListInterface;
+ use Drupal\Core\Form\FormStateInterface;
+ use Drupal\Core\Render\Markup;
++use Drupal\Core\Template\Attribute;
+ use Drupal\Core\Url;
+ use Drupal\responsive_image\Entity\ResponsiveImageStyle;
+
+@@ -112,8 +113,14 @@ class ResponsiveBgImageFormatter extends BgImageFormatter {
+         continue;
+       }
+
++      // Use the responsive image style's fallback below its first breakpoint.
++      array_unshift($vars['sources'], new Attribute([
++        'srcset' => $vars['img_element']['#uri'] . ' 1x',
++        'media' => 'all',
++      ]));
++
+       // Split each source into multiple rules.
+-      foreach (array_reverse($vars['sources']) as $source_i => $source) {
++      foreach ($vars['sources'] as $source_i => $source) {
+         $attr = $source->toArray();
+
+         $srcset = explode(', ', $attr['srcset']);
+@@ -163,7 +170,15 @@ class ResponsiveBgImageFormatter extends BgImageFormatter {
+                             $this->renderer->renderPlain($style_element);
+           }
+           else {
+-            $elements['#attached']['html_head'][] = [$style_element, $html_head_key];
++            $elements['#attached']['css'][] = [
++              'data' => $css['style'],
++              'type' => 'inline',
++              'group' => $css['group'],
++              'weight' => 0,
++              'attributes' => [
++                'media' => $css['media'],
++              ],
++            ];
+           }
+         }
+       }

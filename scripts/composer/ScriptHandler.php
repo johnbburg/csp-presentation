@@ -58,6 +58,15 @@ class ScriptHandler {
       umask($oldmask);
       $event->getIO()->write("Created a sites/default/files directory with chmod 0777");
     }
+
+    // Restore the managed-file source used by the responsive background demo.
+    $demoImageSource = $drupalRoot . '/demo/images/moustache-cakes.jpeg';
+    $demoImageTarget = $drupalRoot . '/sites/default/files/2020-09/moustache-cakes.JPG';
+    if ($fs->exists($demoImageSource) && !$fs->exists($demoImageTarget)) {
+      $fs->mkdir(dirname($demoImageTarget));
+      $fs->copy($demoImageSource, $demoImageTarget);
+      $event->getIO()->write('Restored the responsive background demo image');
+    }
   }
 
   /**
