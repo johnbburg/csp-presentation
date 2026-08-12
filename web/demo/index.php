@@ -29,7 +29,7 @@ function demo_origin() {
   }
   $host = isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : '';
   if (!preg_match('/^[A-Za-z0-9.-]{1,253}(:[0-9]{1,5})?$/', $host)) {
-    $host = 'localhost';
+    return '';
   }
   return (empty($_SERVER['HTTPS']) ? 'http' : 'https') . '://' . $host;
 }
@@ -95,39 +95,6 @@ switch ($csp_option) {
     $csp = "content-security-policy: " . implode(' ', $policies) . ";";
     break;
 
-  case 'strict-dynamic':
-    // The modern, recommended "strict" CSP (per web.dev): a nonce plus
-    // 'strict-dynamic'. The nonce'd script (AddToAny) is trusted to load its
-    // own child scripts without each one needing a nonce. Older browsers fall
-    // back to the host allow-list / 'unsafe-inline'.
-    //
-    // web.dev's canonical recipe is script-src/object-src/base-uri only. A
-    // policy with no default-src leaves every directive it doesn't name
-    // completely unrestricted, so that version would police scripts and leave
-    // images, styles, fonts and frames wide open. The default-src below is the
-    // same host list the nonce case uses, which keeps the two comparable and
-    // makes the real point visible: 'strict-dynamic' shortens script-src and
-    // does nothing for the rest of the allow-list, which you still maintain by
-    // hand.
-    $nonce = 'ABC123';
-    $nonce_attribute = 'nonce="' . $nonce . '"';
-    $policies = [
-      'default-src',
-      '\'self\'',
-      'fonts.googleapis.com',
-      'fonts.gstatic.com',
-      'static.addtoany.com',
-      'www.youtube.com',
-      'picsum.photos',
-      'fastly.picsum.photos',
-      'w.soundcloud.com',
-      '\'nonce-' . $nonce . '\'',
-    ];
-    $csp = "content-security-policy: " . implode(' ', $policies) . "; "
-      . "script-src 'nonce-{$nonce}' 'strict-dynamic' https: 'unsafe-inline'; "
-      . "object-src 'none'; base-uri 'none';";
-    break;
-
   case 'report-to':
     // report-uri is deprecated; the current mechanism is a named endpoint
     // declared in a Reporting-Endpoints response header and referenced by the
@@ -138,7 +105,10 @@ switch ($csp_option) {
     // against the document. That keeps reports same-origin by construction —
     // there is no hostname in it for a request to influence. Reporting-Endpoints
     // needs an absolute URL, so it uses the pinned origin above.
-    $extra_header = 'reporting-endpoints: csp-endpoint="' . demo_origin() . '/demo/csp-report.php"';
+    $origin = demo_origin();
+    if ($origin !== '') {
+      $extra_header = 'reporting-endpoints: csp-endpoint="' . $origin . '/demo/csp-report.php"';
+    }
     $csp = "content-security-policy-report-only: default-src 'self'; report-to csp-endpoint; report-uri /demo/csp-report.php;";
     break;
 

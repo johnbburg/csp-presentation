@@ -81,11 +81,10 @@
   <ul class="navbar-list policy-links">
     <li class="navbar-item"><a class="navbar-link" href="?csp=object-src-absent">object-src: absent</a></li>
     <li class="navbar-item"><a class="navbar-link" href="?csp=object-src">object-src: none</a></li>
-    <li class="navbar-item"><a class="navbar-link" href="?csp=connect-src">connect-src vs strict-dynamic</a></li>
+    <li class="navbar-item"><a class="navbar-link" href="?csp=connect-src">script vs connect-src</a></li>
     <li class="navbar-item"><a class="navbar-link" href="?csp=worker-via-child-src">worker via child-src</a></li>
     <li class="navbar-item"><a class="navbar-link" href="?csp=worker-src">worker-src: none</a></li>
     <li class="navbar-item"><a class="navbar-link" href="?csp=script-attr">script-src-attr vs -elem</a></li>
-    <li class="navbar-item"><a class="navbar-link" href="?csp=trusted-types">Trusted Types</a></li>
     <li class="navbar-item"><a class="navbar-link" href="?csp=double-header">two CSP headers</a></li>
   </ul>
 
@@ -183,10 +182,10 @@
       <a href="?csp=connect-src">active policy</a> allows this page's nonced
       script to run, but clicking the button still blocks its request to
       <code>ad.doubleclick.net</code>.</p>
-    <p><strong>Why:</strong> <code>'strict-dynamic'</code> propagates trust only
-      when an allowed script loads another script. A beacon, <code>fetch()</code>,
-      XHR, EventSource or WebSocket is a connection governed separately by
-      <code>connect-src</code>, which this case limits to <code>'self'</code>.</p>
+    <p><strong>Why:</strong> <code>script-src</code> controls whether code may run.
+      A beacon, <code>fetch()</code>, XHR, EventSource or WebSocket is governed
+      separately by <code>connect-src</code>, which this case limits to
+      <code>'self'</code>.</p>
     <p><button class="button-primary" id="beacon">Send beacon to ad.doubleclick.net</button></p>
     <p class="muted">The violation fires before the network request, so this
       works with no internet connection.</p>
@@ -212,10 +211,8 @@
       place &mdash; that's same-origin policy, not CSP. This is about whether
       workers run at all, not about which host they come from.</p>
     <p class="muted">This section also reports blocked under
-      <a href="?csp=trusted-types">Trusted Types</a> and
-      <a href="?csp=sandbox">sandbox</a>, for unrelated reasons:
-      <code>new Worker(string)</code> is itself a Trusted Types sink, and a
-      sandboxed opaque origin can't load a same-origin script.</p>
+      <a href="?csp=sandbox">sandbox</a>, for an unrelated reason: a sandboxed
+      opaque origin can't load a same-origin script.</p>
   </div>
 
   <hr />
@@ -325,24 +322,6 @@
 
   <hr />
 
-  <!-- ============================ Trusted Types ========================== -->
-  <div class="case <?php echo $csp_option === 'trusted-types' ? 'active' : ''; ?>">
-    <h2>Trusted Types <span class="status status-wait" id="s-tt">click to test</span></h2>
-    <p><strong>What happens:</strong> The button assigns a string containing an
-      <code>&lt;img onerror&gt;</code> payload to <code>innerHTML</code>. With
-      <a href="?csp=trusted-types"><code>require-trusted-types-for 'script'</code></a>,
-      the assignment throws a <code>TypeError</code>; the browser creates no
-      element and the payload cannot run.</p>
-    <p><strong>Why:</strong> Trusted Types does not allow-list network sources.
-      It protects DOM-XSS injection sinks by requiring a typed value such as
-      <code>TrustedHTML</code> instead of a plain string, giving the application
-      an explicit policy where that value can be sanitized.</p>
-    <p><button class="button-primary" id="ttbtn">Write &lt;img onerror&gt; to innerHTML</button></p>
-    <p><span id="tt-out" class="muted">(not yet attempted)</span></p>
-    <div id="tt-sink" style="border:1px dashed #ccc;padding:6px;min-height:28px"></div>
-  </div>
-
-  <hr />
   <p class="muted">Every case changes one directive against the same permissive
     baseline, so the directive under test is the only variable.</p>
   <br />
@@ -352,7 +331,6 @@
 (function () {
   'use strict';
 
-  // Trusted Types is one of the cases, so nothing here may use innerHTML.
   function set(id, state, text) {
     var el = document.getElementById(id);
     if (!el) { return; }
@@ -468,23 +446,6 @@
         set('s-attr', fired ? 'ran' : 'blocked',
             fired ? 'onclick= ran' : 'onclick= blocked, this listener still works');
       }, 120);
-    });
-  }
-
-  // --- Trusted Types ---------------------------------------------------
-  var ttbtn = document.getElementById('ttbtn');
-  if (ttbtn) {
-    ttbtn.addEventListener('click', function () {
-      var sink = document.getElementById('tt-sink');
-      try {
-        sink.innerHTML = '<img src="x" onerror="document.getElementById(\'tt-out\').textContent = \'XSS payload executed.\'">';
-        text('tt-out', 'innerHTML assignment was allowed.');
-        set('s-tt', 'ran', 'innerHTML allowed');
-      }
-      catch (err) {
-        text('tt-out', err.name + ': ' + err.message);
-        set('s-tt', 'blocked', 'innerHTML refused');
-      }
     });
   }
 

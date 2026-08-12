@@ -71,9 +71,6 @@
             <a class="navbar-link" href="?csp=nonce">Nonces</a>
           </li>
           <li class="navbar-item">
-            <a class="navbar-link" href="?csp=strict-dynamic">strict-dynamic</a>
-          </li>
-          <li class="navbar-item">
             <a class="navbar-link" href="?csp=report-to">report-to</a>
           </li>
           <li class="navbar-item">
@@ -118,20 +115,6 @@
   <?php } else { ?>
     <p>Not using any Content Security Policy</p>
     <?php } ?>
-<?php if ($csp_option === 'strict-dynamic') { ?>
-    <p>Note the shape of this policy. <code>script-src</code> is short and names
-      no hosts at all &mdash; that's what <code>'strict-dynamic'</code> buys you.
-      <code>default-src</code> is still carrying the entire host list for fonts,
-      images, styles and frames, because <code>'strict-dynamic'</code> does
-      nothing for any of them.</p>
-    <p>web.dev's published recipe is <code>script-src</code>,
-      <code>object-src</code> and <code>base-uri</code> only. A policy with no
-      <code>default-src</code> leaves every directive it doesn't name completely
-      unrestricted, so that version polices scripts and lets everything else
-      through. The <code>default-src</code> here is the same host list the
-      <a href="?csp=nonce">nonce</a> case uses, so the two are directly
-      comparable.</p>
-<?php } ?>
     <hr />
 
     <div class="row">
@@ -157,8 +140,7 @@
         policy covers AddToAny's inline scripts with four SHA-256 hashes, which
         have to be regenerated whenever the vendor changes that code &mdash; the
         maintenance burden that pushes people toward nonces. The
-        <a href="?csp=nonce">nonce</a> and <a href="?csp=strict-dynamic">strict-dynamic</a>
-        policies instead put a nonce on the loader tag.</p>
+        <a href="?csp=nonce">nonce policy</a> instead puts a nonce on the loader tag.</p>
       <p>AddToAny publishes its own CSP guidance at
         <a href="https://demo.addtoany.com/csp" target="_blank">demo.addtoany.com/csp</a>.</p>
 
@@ -223,13 +205,14 @@
 
 
 
-    <h2>Analytics</h2>
-    <p>Since analytics are generally included via inline scripts. They need a nonce or hash to allow them to meet the CSP.</p>
-    <p><a href="https://developers.google.com/tag-manager/web/csp">Google tag manager Documentation</a>. the Drupal
-      Google Tag Manager module gets aruond this be including the script in an external file. e.g.</p>
-    <pre><code>
-        &lt;script src="/sites/default/files/google_tag/primary/google_tag.script.js?qgt931" defer&gt;&lt;/script&gt;
-    </code></pre>
+    <h2>Analytics and Google Tag Manager</h2>
+    <p>Google recommends a per-response nonce for the GTM loader. Each tag can
+      then require additional script, image, frame, and connection destinations.</p>
+    <p>The released Drupal Google Tag module does not yet add all of those CSP
+      requirements automatically. Until it does, manually add every destination
+      used by your GTM container to the appropriate directive.</p>
+    <p><a href="https://developers.google.com/tag-platform/security/guides/csp" target="_blank" rel="noopener">Google's current CSP guidance</a>
+      &middot; <a href="https://www.drupal.org/project/google_tag/issues/3203811" target="_blank" rel="noopener">Drupal issue #3203811: test the nonce patch</a></p>
 
     <hr />
 

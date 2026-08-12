@@ -30,6 +30,10 @@ $nonce = FALSE;
 $nonce_attribute = '';
 $inject_base = FALSE;
 
+// Same-origin links and assets in the view use relative references. The
+// absolute hosts below are intentionally cross-origin: those cases need a
+// second origin to demonstrate what the relevant CSP directive blocks.
+//
 // The host from the real-world incident in the slides: a Google Ads tag added
 // through the GTM UI, beaconing to a domain nobody on the dev team allow-listed.
 // The CSP violation fires before the network request, so this demonstrates
@@ -88,12 +92,12 @@ switch ($csp_option) {
     break;
 
   // --- connect-src -----------------------------------------------------
-  // The directive 'strict-dynamic' does not help with: beacons, fetch, XHR.
+  // Permission to execute a script does not grant it permission to connect.
 
   case 'connect-src':
     $nonce = 'ABC123';
     $nonce_attribute = 'nonce="' . $nonce . '"';
-    $csp = "content-security-policy: script-src 'nonce-{$nonce}' 'strict-dynamic' https: 'unsafe-inline'; "
+    $csp = "content-security-policy: script-src 'nonce-{$nonce}'; "
       . "connect-src 'self'; img-src 'self' data: {$img_hosts}; style-src 'self' 'unsafe-inline';";
     break;
 
@@ -152,13 +156,6 @@ switch ($csp_option) {
 
   case 'sandbox':
     $csp = "content-security-policy: {$base}; {$connect}; sandbox allow-scripts;";
-    break;
-
-  // --- Trusted Types -----------------------------------------------------
-  // Locks the DOM-XSS sinks. innerHTML with a plain string now throws.
-
-  case 'trusted-types':
-    $csp = "content-security-policy: {$base}; {$connect}; require-trusted-types-for 'script';";
     break;
 }
 

@@ -27,6 +27,8 @@
     "drupal/crop": "^2.4",
     "drupal/csp": "~2.0",
     "drupal/focal_point": "^2.1",
+    "drupal/google_tag": "^2.0",
+    "drupal/reporting": "^2.1",
     "drupal/seckit": "^2.0",
     "drush/drush": "~13",
     "vlucas/phpdotenv": "^5.6",
