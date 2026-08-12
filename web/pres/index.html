@@ -453,7 +453,8 @@ frame-ancestors 'self';</code></pre>
             <p>&hellip;and easy to get wrong. (I forgot to set <code>default-src</code> here.)</p>
 					<aside class="notes">
 					  <p>This is a real header I maintained by hand.</p>
-					  <p>Point at how long it is. This slide is the argument for the whole next section.</p>
+					  <p>The point is, that's a lot to do. So don't do it by hand.</p>
+            <p>I forgot default-src...</p>
 					</aside>
 					</section>
           <section>
@@ -466,19 +467,7 @@ frame-ancestors 'self';</code></pre>
               <p>Short answer for the question people are about to ask.</p>
             </aside>
           </section>
-
-          <section>
-            <h3>Current limitations of CSP</h3>
-            <p>Browser support for newer CSP features still varies.</p>
-            <p>Granular directive support is now broad, but not universal.</p>
-            <p>A weak CSP (lots of <code>'unsafe-inline'</code> / wildcards) can still let attacks through &mdash;</p>
-            <p><a target="_blank" href="https://security.stackexchange.com/questions/131149/what-are-the-limitations-of-content-security-policy">and even a strong one can sometimes be circumvented.</a></p>
-            <aside class="notes">
-              <p>Worth being honest about what it doesn't do.</p>
-              <p>A weak policy gives you the header and the passing grade without much of the protection.</p>
-            </aside>
-          </section>
-				</section>
+        </section>
 
 
         <section>
@@ -732,7 +721,7 @@ $element['#attached']['csp_hash']['script-src-elem'] = [
             <p style="font-size:.52em; opacity:.65"><a href="https://www.drupal.org/project/csp/issues/3598732" target="_blank">CSP issue #3598732</a> &middot; <a href="https://www.drupal.org/project/reporting" target="_blank">Reporting API module</a></p>
           <aside class="notes">
             <p>The report-uri directive which ships with the CSP module is deprecated. It still works. The recommendation is to send both - for compatibility - for now.</p>
-            <p>But now we should be using the Reporting-Endpoints module -- If you are trying to store the logs of CSP violations to some service you set up.</p>
+            <p>But now we should be using the Reporting-Endpoints module IF you are trying to send the logs of CSP violations to some service you set up.</p>
             <p>Or you could leave it alone, and just wait for complaints? Or manually check?</p>
             <p>To be frank, I haven't used any of these reporting endpoint services before, but not that I'm opposed to.</p>
           </aside>
