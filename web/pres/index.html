@@ -32,7 +32,7 @@
 						<p style="font-size:.6em; opacity:.7">Use arrow keys to move slides</p>
 					<aside class="notes">
 					  <p>Welcome to Content Security Policy in Drupal.</p>
-            <p>This presentation is available at  www.drupal-csp.net/pres. And there is a lot more here, than just the slides as you will see.</p>
+            <p>This presentation is available at  www.drupal-csp.net/pres. And there is a lot more here, than just the slides as you will see. Maybe not all right away, this  is on my cheap hosting <plan class=""></plan></p>
             <p>Quick  warning, I'm being a little ambitious with the amount information I'm trying to cover here, so I might move at a fast pace. We have some demos at the end, and I'd love to leave time for questions.</p>
 					</aside>
 					</section>
@@ -173,7 +173,7 @@ content-type: text/html
             <p>Avoid slip when adding redirects</p>
 					<aside class="notes">
             <p>How to set it up.</p>
-					  <p>Preference order is web server or CDN first, then a module.</p>
+					  <p>Preference order is web server or CDN first, then a module (Security Kit).</p>
 					  <p>It's a static header that never changes, so there's no real reason for PHP to be generating it on every request.</p>
             <p>Really the biggest problem you run into with it, is you might add a redirect somewhere in say your htaccess, and forget to include the HSTS as a part of that</p>
             <p>But don't worry, CISA will remind you in a month or so...</p>
@@ -517,8 +517,8 @@ frame-ancestors 'self';</code></pre>
               <h3>How do you set a CSP?</h3>
               <p>By hand is unsustainable. A real CSP needs to be dynamic (fresh nonces, per-page sources). That's the challenge &mdash; and why you want a module.</p>
             <aside class="notes">
-              <p>A CSP really needs to be generated dynamically per page. I've seen some of my WordPress friends  struggle in this area, because they don't have the structured frameworks like Drupal has to do this effectivel.</p>
-              <p>Perhaps that's changed, I'm not a WordPress guy.</p>
+              <p>A CSP really needs to be generated dynamically per page. I've seen some of my WordPress friends  struggle in this area, because they don't have the structured frameworks like Drupal has, to do this effectively.</p>
+              <p>Perhaps that's changed, I'm not a WordPress guy, so I'm not up on their latest news.</p>
             </aside>
             </section>
             <section>
@@ -529,19 +529,21 @@ frame-ancestors 'self';</code></pre>
               <p>Use the CSP module.</p>
               <p>You could use the Security Kit module, but it's nowhere near as dynamic as the dedicated CSP  module.</p>
               <p>The CSP module was smart enough to handle the issues back  in the days of  CKEditor 4,  which required that unsafe-inline directive.</p>
-              <p>Also, think about the need to adjust CSP on the fly when loading content from ajax (when can we stop using that misnomer and call it AJAJ?).</p>
+              <p>Also, think about the need to adjust CSP on the fly when loading content from ajax </p>
+              <p>(when can we stop using that misnomer and call it AJAJ?).</p>
             </aside>
             </section>
             <section>
               <h3>Modules</h3>
               <ul>
                 <li><a target="_blank" href="https://www.drupal.org/project/csp">Content Security Policy</a> (drupal/csp) &mdash; builds the policy and supports nonces.</li>
-                <li><a target="_blank" href="https://www.drupal.org/project/attachinline">Attach Inline</a> &mdash; for when you genuinely need inline JS, attached the right way.</li>
                 <li><a target="_blank" href="https://www.drupal.org/project/reporting">Reporting API</a> (drupal/reporting) &mdash; adds <code>Reporting-Endpoints</code> and <code>report-to</code>.</li>
+                <li><a target="_blank" href="https://www.drupal.org/project/attachinline">Attach Inline</a> &mdash; for when you genuinely need inline JS, attached the right way.</li>
               </ul>
             <aside class="notes">
               <p>Three worth knowing about.</p>
-              <p>The CSP module still uses the deprecated "report-uri" directive (that's where I mentioned you could DDOS yourself with POST requests). The Reporting API module is now used to define the report-to instead.</p>
+              <p>The CSP module of course, though still uses the deprecated "report-uri" directive (that's where I mentioned you could DDOS yourself with POST requests). The Reporting API module is now used to define the report-to instead.</p>
+              <p>Then the attach inline module, if you must use inline code, but that is discouraged.</p>
               <p>These are the same maintainer by the way. Geoff Appleby, who I want to give a big thanks to for supporting all this for the Drupal community.</p>
             </aside>
             </section>
