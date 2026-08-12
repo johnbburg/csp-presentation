@@ -7,6 +7,10 @@ $csp = '';
 $extra_header = '';
 $nonce = false;
 $nonce_attribute = '';
+// One or two sentences, set per case below, telling the viewer what this
+// specific policy is expected to break versus allow on this page. Rendered
+// under the raw header so nobody has to reverse-engineer the policy by eye.
+$csp_explanation = '';
 
 /**
  * This demo's own origin, e.g. "https://example.org".
@@ -37,16 +41,33 @@ function demo_origin() {
 switch ($csp_option) {
   case 'none':
     $csp = '';
+    $csp_explanation = 'No CSP header is sent at all. Nothing on this page is blocked — every '
+      . 'inline script and style, every external font, image, and iframe loads exactly as it '
+      . 'would with no policy in place. This is the baseline every other option is compared against.';
     break;
   case 'enforced':
   case 'enforced-self':
     $csp = "content-security-policy: default-src 'self';";
+    $csp_explanation = 'Strict default-src, nothing else allow-listed, and no unsafe-inline, hash, '
+      . 'or nonce. Almost everything below breaks: the AddToAny share script, the Google Fonts '
+      . 'stylesheet and font files, the external picsum.photos image, both the YouTube and '
+      . 'SoundCloud iframes, and every inline script/style example. Only same-origin resources — '
+      . 'the local image and the background image pulled in via the local stylesheet — still render.';
     break;
   case 'report-only':
     $csp = "content-security-policy-report-only: default-src 'self';";
+    $csp_explanation = 'Report-only policies never block anything, so this page looks identical to '
+      . '&ldquo;No CSP.&rdquo; The difference only shows up in DevTools, as a &ldquo;would have '
+      . 'blocked&rdquo; console warning per violation. This option has no report-uri/report-to '
+      . 'configured, so nothing is actually sent anywhere &mdash; see &ldquo;report-to&rdquo; for that.';
     break;
   case 'unsafe-inline':
     $csp = "content-security-policy: default-src 'self' 'unsafe-inline' fonts.googleapis.com static.addtoany.com picsum.photos fastly.picsum.photos fonts.gstatic.com www.youtube.com w.soundcloud.com;";
+    $csp_explanation = 'Every host this page uses is allow-listed, plus &lsquo;unsafe-inline&rsquo;. '
+      . 'Nothing breaks: fonts, AddToAny, both iframes, the external image, and all three inline-'
+      . 'script examples (plain, hash, nonce) all load, because unsafe-inline permits inline code '
+      . 'whether or not it carries a matching hash or nonce. This is the &ldquo;yes, it can all '
+      . 'work&rdquo; policy — at the cost of the protection CSP exists to provide.';
     break;
   case 'hash':
     $policies = [
@@ -75,6 +96,13 @@ switch ($csp_option) {
       //'data:'
     ];
     $csp = "content-security-policy: " . implode(' ', $policies) . ";";
+    $csp_explanation = 'No unsafe-inline; every allowed inline script/style is instead matched by '
+      . 'its exact sha256 hash. Two inline JS examples are deliberately left off this list and stay '
+      . 'blocked: the plain document.write example (no hash offered for it) and the nonce example '
+      . '(this policy has no matching hash for it) &mdash; a hash only ever covers the exact code '
+      . 'you hashed. Watch the background-image style <em>attribute</em> too: its hash is listed, so '
+      . 'Firefox renders it, but Chrome still blocks it &mdash; a plain hash never covers style '
+      . 'attributes, only elements (see &lsquo;unsafe-hashes&rsquo;).';
     break;
   case 'nonce':
     $nonce = 'ABC123';
@@ -93,6 +121,13 @@ switch ($csp_option) {
       '\'nonce-'.$nonce.'\'',
     ];
     $csp = "content-security-policy: " . implode(' ', $policies) . ";";
+    $csp_explanation = 'No unsafe-inline; &lsquo;ABC123&rsquo; is the one nonce this policy trusts. '
+      . 'Only script/style tags carrying that exact nonce attribute run: the nonced inline-JS '
+      . 'example, the AddToAny loader, and the div-image style block. The plain document.write '
+      . 'example (no nonce attribute) and the hash-only example (no nonce, no matching hash here) '
+      . 'both stay blocked. The background-image style <em>attribute</em> also stays blocked even '
+      . 'though its div carries a nonce attribute &mdash; nonces only apply to script/style '
+      . '<em>tags</em>, never to attributes.';
     break;
 
   case 'report-to':
@@ -110,6 +145,11 @@ switch ($csp_option) {
       $extra_header = 'reporting-endpoints: csp-endpoint="' . $origin . '/demo/csp-report.php"';
     }
     $csp = "content-security-policy-report-only: default-src 'self'; report-to csp-endpoint; report-uri /demo/csp-report.php;";
+    $csp_explanation = 'Report-only again, so visually this looks like &ldquo;No CSP&rdquo; &mdash; '
+      . 'but every violation (fonts, AddToAny, the external image, both iframes, every inline '
+      . 'script/style) is now actually POSTed to /demo/csp-report.php via both report-to and '
+      . 'report-uri. Check the Network tab for the 204 responses; the endpoint itself is a no-op '
+      . 'for this demo, so nothing is stored on the other end.';
     break;
 
   case 'child-src':
@@ -121,6 +161,11 @@ switch ($csp_option) {
       "child-src 'self' www.youtube.com w.soundcloud.com static.addtoany.com",
     ];
     $csp = "content-security-policy: " . implode('; ', $policies) . ";";
+    $csp_explanation = 'Deliberately permissive everywhere except the frame directives, to isolate '
+      . 'one variable: no frame-src is set, so frame-src falls back to child-src, and both the '
+      . 'YouTube and SoundCloud iframes below load normally. <strong>Nothing here is expected to be '
+      . 'broken</strong> &mdash; this is the working half of the fallback-trap pair below; compare '
+      . 'it against &ldquo;fallback trap.&rdquo;';
     break;
 
   case 'fallback-trap':
@@ -134,6 +179,11 @@ switch ($csp_option) {
       "frame-src 'self'",
     ];
     $csp = "content-security-policy: " . implode('; ', $policies) . ";";
+    $csp_explanation = 'Identical to &lsquo;child-src&rsquo; plus one addition: frame-src \'self\'. '
+      . 'Because frame-src is now present at all, the browser never falls back to child-src for '
+      . 'frames &mdash; child-src\'s youtube/soundcloud entries go dead and both iframes below are '
+      . 'blocked, even though they are still listed in child-src. See &ldquo;the fallback trap&rdquo; '
+      . 'below.';
     break;
 
   case 'complete' :

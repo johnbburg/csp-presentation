@@ -32,7 +32,7 @@
 						<p style="font-size:.6em; opacity:.7">Use arrow keys to move slides</p>
 					<aside class="notes">
 					  <p>Welcome to Content Security Policy in Drupal.</p>
-            <p>This presentation is available at  www.drupal-csp.net/pres. And there is a lot more here, than just the slides as you will see. Maybe not all right away, this  is on my cheap hosting <plan class=""></plan></p>
+            <p>This presentation is available at  www.drupal-csp.net/pres. And there is a lot more here, than just the slides as you will see. Maybe not everyone all at once, this is on my cheap hosting plan.</p>
             <p>Quick  warning, I'm being a little ambitious with the amount information I'm trying to cover here, so I might move at a fast pace. We have some demos at the end, and I'd love to leave time for questions.</p>
 					</aside>
 					</section>
@@ -49,7 +49,7 @@
               <p>That's me, John Brandenburg, Technical Architect at Forum One. I've been a Forum One for 13 years now. When not working, I spend time with my family, and I enjoy painting little sci fi army men. </p>
 
                 <p>So I actually created this presentation in 2020, so that's like 30 years ago, right?
-                I did it internally at Forum One for the engineering team. Of course this was coming off of a deep dive I
+                I did it internally at Forum One for our engineering team. Of course this was coming off of a deep dive I
                 did myself on a project to add CSP. I had intended to submit it for a conference sooner, but Life just
                 sort of got in the way.</p>
 
@@ -434,8 +434,8 @@ frame-ancestors 'self';</code></pre>
           <section>
             <h3><code>'unsafe-hashes'</code></h3>
             <pre><code class="http">content-security-policy: script-src 'unsafe-hashes' 'sha256-...';</code></pre>
-            <p>The CSP Level 3 keyword that lets a hash match an inline <strong>event handler</strong> or <strong>style attribute</strong> &mdash; the gap from the previous slide.</p>
-            <p>Still "unsafe" (less so than <code>'unsafe-inline'</code>). The better fix is to remove inline handlers/attribute styles entirely.</p>
+            <p>Lets a hash cover an inline <strong>event handler</strong> or <strong>style attribute</strong> &mdash; closing the gap from the last slide.</p>
+            <p>Still "unsafe," but safer than <code>'unsafe-inline'</code>. Better fix: remove the inline handler/attribute entirely.</p>
             <a target="_blank" href="https://content-security-policy.com/unsafe-hashes/">content-security-policy.com/unsafe-hashes</a>
           <aside class="notes">
             <p>This is the escape hatch for the previous slide.</p>
@@ -562,7 +562,6 @@ frame-ancestors 'self';</code></pre>
 $ curl -Is https://www.drupal-csp.net/ | grep -i content-security-policy
 content-security-policy: default-src &#x27;self&#x27;; font-src &#x27;self&#x27; fonts.googleapis.com fonts.gstatic.com; frame-src &#x27;self&#x27; www.youtube.com w.soundcloud.com; img-src &#x27;self&#x27; data: pbs.twimg.com static.addtoany.com; script-src &#x27;self&#x27; static.addtoany.com; style-src &#x27;self&#x27; fonts.googleapis.com fonts.gstatic.com static.addtoany.com; frame-ancestors &#x27;self&#x27;
               </code></pre>
-              <p style="font-size:.75em; opacity:.85">Contrib authors: <code>POLICY_ALTER</code> is how your module should declare its own CSP needs.</p>
             <aside class="notes">
               <p>So to really know what a CSP holds, Read the header as it is on the page.</p>
             </aside>
@@ -682,8 +681,7 @@ $element['#attached']['csp_hash']['script-src-elem'] = [
             <p style="font-size:.6em; opacity:.75"><a href="https://developers.google.com/tag-platform/security/guides/csp" target="_blank">Google: Use Tag Manager with a Content Security Policy</a></p>
           <aside class="notes">
             <p>Now there is a good chance you are using Google Tag Manager. But it presents problems for CSP. Because by its nature, it's loading external scripts.</p>
-            <p>Google updated their guidance recently, and it's much clearer than before. See that link below.</p>
-            <p>But it does require unsafe-eval, or needs to be patch.</p>
+            <p>Google rewrote their guidance recently (I think), and it's much clearer than before. See that link below.</p>
           </aside>
           </section>
           <section>
@@ -692,8 +690,8 @@ $element['#attached']['csp_hash']['script-src-elem'] = [
             <p style="font-size:.78em"><strong>For now:</strong> manually add every destination loaded by your GTM container to the appropriate CSP directive.</p>
             <p style="font-size:.55em; opacity:.7"><a href="https://www.drupal.org/project/google_tag/issues/3203811" target="_blank">Google Tag issue #3203811</a> &mdash; the patch needs testing; hopefully a release soon.</p>
           <aside class="notes">
-            <p>So for now, you are just going to need to manually add extra scripts from Google tag to your CSP. There
-              is an issue to utilize that nonce-safe approach described in the link on thhe previous slide, but that is still an active issue.</p>
+            <p>So for now, you are just going to need to manually add extra scripts from Google tag to your CSP. </p>
+            <p>There is an issue to utilize that nonce-safe approach described by Google, but that is still an active issue. See the link here.</p>
           </aside>
           </section>
           <section>
@@ -703,7 +701,7 @@ $element['#attached']['csp_hash']['script-src-elem'] = [
             <p>No PR. No deploy. No notice.</p>
             <p style="font-size:.8em">Google documents the required hosts now &mdash; but the container can still change underneath your policy.</p>
           <aside class="notes">
-            <p>Until then, you jsust need to stay on top of what's being added to GTM to avoid accidental CSP violations.</p>
+            <p>Until then, you just need to stay on top of what's being added to GTM to avoid accidental CSP violations.</p>
           </aside>
           </section>
         </section>
@@ -719,10 +717,10 @@ $element['#attached']['csp_hash']['script-src-elem'] = [
             <p style="font-size:.75em">The Reporting API module ia the new standard.</p>
             <p style="font-size:.52em; opacity:.65"><a href="https://www.drupal.org/project/csp/issues/3598732" target="_blank">CSP issue #3598732</a> &middot; <a href="https://www.drupal.org/project/reporting" target="_blank">Reporting API module</a></p>
           <aside class="notes">
-            <p>The report-uri directive which ships with the CSP module is deprecated. It still works. The recommendation is to send both - for compatibility - for now.</p>
+            <p>The report-uri directive, which ships with the CSP module is deprecated. It still works. The recommendation is to send both - for compatibility - for now.</p>
             <p>But now we should be using the Reporting-Endpoints module IF you are trying to send the logs of CSP violations to some service you set up.</p>
             <p>Or you could leave it alone, and just wait for complaints? Or manually check?</p>
-            <p>To be frank, I haven't used any of these reporting endpoint services before, but not that I'm opposed to.</p>
+            <p>To be frank, I haven't used any of these reporting endpoint services before, but not that I'm opposed to them.</p>
           </aside>
           </section>
           <section>
@@ -733,7 +731,7 @@ content-security-policy:
   report-to csp-endpoint;
   report-uri https://example.com/report;</code></pre>
             <aside class="notes">
-              <p>This is just to show what these look like together.</p>
+              <p>And this is just to show what both of these reporting directives look like together.</p>
             </aside>
           </section>
 
@@ -778,6 +776,7 @@ content-security-policy:
             <h3>Demo: violation reporting</h3>
             <p><a href="/demo/index.php?csp=report-to" target="_blank" rel="noopener">Open the reporting demo &nearr;</a></p>
             <p>Send report-only violations through both <code>report-to</code> and <code>report-uri</code>.</p>
+            <p>We've just set up a mock report uri here.</p>
           </section>
           <section>
             <h3>Demo: <code>child-src</code> fallback</h3>

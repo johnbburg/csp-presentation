@@ -115,6 +115,9 @@
   <?php } else { ?>
     <p>Not using any Content Security Policy</p>
     <?php } ?>
+  <?php if (!empty($csp_explanation)) { ?>
+    <p class="csp-explanation"><strong>What to expect:</strong> <?php echo $csp_explanation; ?></p>
+  <?php } ?>
     <hr />
 
     <div class="row">
