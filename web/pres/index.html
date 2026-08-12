@@ -581,7 +581,7 @@ content-security-policy: default-src &#x27;self&#x27;; font-src &#x27;self&#x27;
             <section>
               <h3>And if <code>curl</code> shows you <em>two</em> policies&hellip;</h3>
               <p>Both are enforced. The effective policy is their <strong>intersection</strong>, not their union &mdash; a resource must be allowed by every policy in force.</p>
-              <p style="font-size:.8em">So if your CDN or web server sets one and Drupal sets another, adding a host in the Drupal admin UI changes nothing. The other policy still rejects it, and nothing in Drupal will tell you why.</p>
+              <p style="font-size:.8em">*Can happen if your CDN and Drupal both set a CSP.</p>
             <aside class="notes">
               <p>If you end up with multiple policies, Intersection, not union. I see this when a Client's IT team sets it in the WAF, but  you also have Drupal Dynamically generating one as well.</p>
               <p>The browser enforces all of them, independently.</p>
