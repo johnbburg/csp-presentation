@@ -68,6 +68,18 @@
   right: 80px;
 }
 
+/* Move the persistent brand mark to the bottom-LEFT.
+   The theme pins it bottom-right, which is also where reveal puts the
+   navigation arrows and the slide number. With vertical slides the arrows form
+   a diamond and merely crowd it (a 24px gap); on a linear deck they render as a
+   horizontal pair directly beneath the logo and genuinely overlap it.
+   Bottom-left is empty in reveal's default chrome — the progress bar is a
+   full-width 3px strip at the very bottom edge, which this clears. */
+.reveal .f1-corner-logo {
+  right: auto;
+  left: 22px;
+}
+
 /* Code blocks must never scroll horizontally — anything past the right edge is
    invisible on a projector, with no scrollbar to hint it's there.
 

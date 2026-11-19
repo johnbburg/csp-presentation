@@ -1,0 +1,10 @@
+Your security scan came back with an F. Two of the biggest culprits are almost always the same: missing HSTS and missing Content Security Policy (CSP) headers. CSP is one of the most effective defenses against cross-site scripting and supply-chain attacks, but it's also one of the easiest things to get subtly, dangerously wrong.
+
+This session is a practical, hands-on guide to implementing CSP on a Drupal site. We'll start with what CSP actually is and the problem it solves, then dig into the directives, the specific-to-general cascade, and why default-src and report-only mode are your best friends. From there we get into the real-world friction: unsafe-inline, hashes vs. nonces (and why most advice about both is wrong), inconsistent browser support, and the analytics and Google Tag Manager scripts that quietly break the moment you turn CSP on.
+
+We'll focus on doing this in Drupal: the CSP contrib module, why you should avoid Security Kit for this, the CKEditor gotcha, and handling inline JavaScript when you truly can't avoid it. A live demo will show the same page under no CSP, report-only, enforced, and the different allow-listing strategies side by side.
+
+Takeaways: You'll leave knowing how to roll out a Content Security Policy on a Drupal site incrementally, without taking down your editors or your analytics, and how to right-size your security posture to what your site actually needs.
+
+
+
